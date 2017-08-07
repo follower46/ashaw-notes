@@ -10,4 +10,4 @@ install:
   - pip install nose
   - pip install coverage
 script:
-- nosetests -v --with-coverage --cover-package=utils,connectors,quicknote
+- nosetests -v --with-coverage --cover-erase --cover-package=utils,connectors,quicknote
