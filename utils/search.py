@@ -33,7 +33,7 @@ def timestamp_to_datestring(timestamp):
     return time.asctime(time.localtime(timestamp))
 
 
-def get_search_request(terms):
+def get_search_request(terms=None):
     """Builds search request object"""
     return SearchRequest(terms)
 
