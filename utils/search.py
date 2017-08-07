@@ -4,6 +4,7 @@
 """
 import re
 import time
+import calendar
 from dateutil.parser import parse
 
 
@@ -25,12 +26,12 @@ def is_hashtag(string):
 
 def datestring_to_timestamp(string):
     """Converts string to timestamp"""
-    return int(time.mktime(time.strptime(string)))
+    return int(calendar.timegm(time.strptime(string)))
 
 
 def timestamp_to_datestring(timestamp):
     """Converts timestamp to date string"""
-    return time.asctime(time.localtime(timestamp))
+    return time.asctime(time.gmtime(timestamp))
 
 
 def get_search_request(terms=None):
