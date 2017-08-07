@@ -1,5 +1,7 @@
 ## Description
 
+[![Build Status](https://travis-ci.org/follower46/ashaw-notes.svg?branch=master)](https://travis-ci.org/follower46/ashaw-notes)
+
 ashaw-notes was created to allow for quick and easy note taking and retrieval of information and personal context.
 With a keen focus on speed of entry and filtering, ashaw-notes allows quick overviews of the previous day, month, and year for time tracking or simple daily standup updates.
 
