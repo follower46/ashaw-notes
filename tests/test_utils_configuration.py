@@ -1,4 +1,4 @@
-""" Testing Configuration Modules
+""" Testing Configuration Module
 """
 
 import unittest
@@ -12,7 +12,7 @@ class ConfigurationTests(unittest.TestCase):
 
     def test_config_defaulted_empty(self):
         """Validates that local config global isn't set on empty load"""
-        assert configuration.__local_config__ is None
+        self.assertIsNone(configuration.__local_config__)
 
 
     def test_config_load(self):
@@ -40,16 +40,16 @@ class ConfigurationTests(unittest.TestCase):
 
     @patch('os.path.isfile')
     def test_get_notes_file_location(self, isfile):
-        """Validates things"""
-        isfile.return_value(True)
+        """Validates local config wins if found"""
+        isfile.return_value = True
         self.assertEqual(configuration.get_notes_file_location(), 'notes-local.config')
 
 
     @patch('os.path.isfile')
-    def test_get_notes_file_location_failure(self, isfile):
-        """Validates things"""
-        isfile.return_value(False)
+    def test_config_missing(self, isfile):
+        """Checks for proper exception handling"""
+        isfile.return_value = False
         with self.assertRaises(Exception) as context:
             configuration.get_notes_file_location()
-            self.assertTrue('Config not found. Please verify configuration deployment' 
+            self.assertTrue('Config not found. Please verify configuration deployment'
                             in context.exception)
