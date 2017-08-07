@@ -39,9 +39,9 @@ class SearchTests(unittest.TestCase):
         self.assertEqual(search.is_hashtag(string), expectation)
 
     @data(
-        ('Thu Jul 11 00:00:00 2013', 1373540400 - time.timezone),
-        ('Tue Dec 22 14:23:08 2015', 1450837388 - time.timezone),
-        ('Mon May  1 17:06:30 2017', 1493697990 - time.timezone),
+        ('Thu Jul 11 00:00:00 2013', 1373562000 + time.timezone),
+        ('Tue Dec 22 14:23:08 2015', 1450858988 + time.timezone),
+        ('Mon May  1 17:06:30 2017', 1493719590 + time.timezone),
     )
     def test_datestring_to_timestamp(self, data_set):
         """Verifies string can be converted into a timstamp"""
@@ -49,9 +49,9 @@ class SearchTests(unittest.TestCase):
         self.assertEqual(search.datestring_to_timestamp(string), expectation)
 
     @data(
-        (1373540400 - time.timezone, 'Thu Jul 11 00:00:00 2013'),
-        (1450837388 - time.timezone, 'Tue Dec 22 14:23:08 2015'),
-        (1493697990 - time.timezone, 'Mon May  1 17:06:30 2017'),
+        (1373562000 + time.timezone, 'Thu Jul 11 00:00:00 2013'),
+        (1450858988 + time.timezone, 'Tue Dec 22 14:23:08 2015'),
+        (1493719590 + time.timezone, 'Mon May  1 17:06:30 2017'),
     )
     def test_timestamp_to_datestring(self, data_set):
         """Verifies string can be converted into a timstamp"""
