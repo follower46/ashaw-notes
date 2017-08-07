@@ -2,12 +2,19 @@
 
 """ Local File Note Connector module
 """
-import configparser
 import re
 import time
 from datetime import date
 from shutil import copyfile
 from utils.search import timestamp_to_datestring, get_search_request
+from utils.configuration import load_config
+
+
+config_section = 'local_notes'
+
+
+def is_enabled():
+    return config_section in load_config().get('base_config', 'data_backends')
 
 
 def save_note(timestamp, note):
@@ -85,15 +92,13 @@ def find_local_notes(search_request):
 
 
 def get_notes_file_location():
-    config = configparser.ConfigParser()
-    config.read('notes.config')
-    return config.get('notes_file', 'location')
+    config = load_config()
+    return config.get(config_section, 'location')
 
 
 def use_backup():
-    config = configparser.ConfigParser()
-    config.read('notes.config')
-    return config.get('notes_file', 'create_backup')
+    config = load_config()
+    return config.get(config_section, 'create_backup')
 
 
 def backup_notes():

@@ -1,12 +1,19 @@
 #!/usr/bin/python3
+
 import re
 import time
-import configparser
 import readline
+import importlib
+
 import connectors.redis_notes as redis_notes
 import connectors.local_notes as local_notes
 
 noPrefix_regex = re.compile('^todo(ne\[[0-9]*\])?:|^(s)?lunch$|^cal:')
+
+
+def import_connectors():
+    #importlib.import_module("matplotlib.text")
+    pass
 
 
 def write_note(note):
@@ -43,6 +50,8 @@ class Completer:
 
 
 if __name__ == '__main__':
+    import_connectors()
+
     try:
         completer = Completer(redis_notes.get_common_words())
 
@@ -50,6 +59,5 @@ if __name__ == '__main__':
         readline.set_completer(completer.complete)
     except:
         pass
- 
 
     write_note(input("note: "))

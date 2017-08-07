@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 import re
 import time
-import configparser
+from utils.configuration import load_config
 from datetime import date
 from redis_connector import get_redis_connection
 
@@ -14,8 +14,7 @@ __line_regex__ = re.compile(r'\[([^\]]+)\] (.*)')
 '''
 def load_notes():
     global __notes__
-    config = configparser.ConfigParser()
-    config.read('notes.config')
+    config = load_config()
 
     __notes__ = {}
     with open(config.get('notes_file', 'location')) as file:
@@ -70,8 +69,7 @@ def add_redis_note(timestamp, note):
 
 
 def get_notes_file_location():
-    config = configparser.ConfigParser()
-    config.read('notes.config')
+    config = load_config()
     return config.get('notes_file', 'location')
 
 

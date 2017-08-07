@@ -2,12 +2,19 @@
 
 """ Redis Note Connector module
 """
-import configparser
 import re
 import redis
 import time
 from datetime import date
 from utils.search import timestamp_to_datestring, get_search_request
+from utils.configuration import load_config
+
+
+config_section = 'redis_notes'
+
+
+def is_enabled():
+    return config_section in load_config().get('base_config', 'data_backends')
 
 
 def save_note(timestamp, note):
@@ -123,15 +130,14 @@ def find_redis_notes(search_request):
 def get_redis_connection():
     global __redis__
 
-    config = configparser.ConfigParser()
-    config.read('notes.config')
+    config = load_config()
 
     if not __redis__:
         __redis__ = redis.StrictRedis(
-            host=config.get('redis_server', 'endpoint'), 
-            port=config.get('redis_server', 'port'), 
-            db=config.get('redis_server', 'db'),
-            password=config.get('redis_server', 'password')
+            host=config.get(config_section, 'endpoint'), 
+            port=config.get(config_section, 'port'), 
+            db=config.get(config_section, 'db'),
+            password=config.get(config_section, 'password')
         )
 
     return __redis__

@@ -1,13 +1,12 @@
 import redis
-import configparser
+from utils.configuration import load_config
 
 __iloveglobals__ = None
 
 def get_redis_connection():
     global __iloveglobals__
 
-    config = configparser.ConfigParser()
-    config.read('notes.config')
+    config = load_config()
 
     if not __iloveglobals__:
         __iloveglobals__ = redis.StrictRedis(
