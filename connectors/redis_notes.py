@@ -10,27 +10,32 @@ from utils.search import timestamp_to_datestring, get_search_request
 from utils.configuration import load_config
 
 
-config_section = 'redis_notes'
+CONFIG_SECTION = 'redis_notes'
 
 
 def is_enabled():
-    return config_section in load_config().get('base_config', 'data_backends')
+    """Checks if connector is enabled"""
+    return CONFIG_SECTION in load_config().get('base_config', 'data_backends')
 
 
 def save_note(timestamp, note):
+    """Saves note to timestamp"""
     add_redis_note(timestamp, note)
 
 
 def delete_note(timestamp):
+    """Removes note at supplied timestamp"""
     delete_redis_note(timestamp)
 
 
 def update_note(original_timestamp, new_timestamp, new_note):
+    """Updates note at supplied timestamp"""
     delete_note(original_timestamp)
     save_note(new_timestamp, new_note)
 
 
 def find_notes(search_terms):
+    """Returns all notes corresponding to supplied search object"""
     request = get_search_request(search_terms)
     return find_redis_notes(request)
 
@@ -134,10 +139,10 @@ def get_redis_connection():
 
     if not __redis__:
         __redis__ = redis.StrictRedis(
-            host=config.get(config_section, 'endpoint'), 
-            port=config.get(config_section, 'port'), 
-            db=config.get(config_section, 'db'),
-            password=config.get(config_section, 'password')
+            host=config.get(CONFIG_SECTION, 'endpoint'), 
+            port=config.get(CONFIG_SECTION, 'port'), 
+            db=config.get(CONFIG_SECTION, 'db'),
+            password=config.get(CONFIG_SECTION, 'password')
         )
 
     return __redis__

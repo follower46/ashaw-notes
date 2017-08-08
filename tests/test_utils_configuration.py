@@ -10,11 +10,6 @@ from mock import patch
 class ConfigurationTests(unittest.TestCase):
     """Unit Testing Configuration"""
 
-    def test_config_defaulted_empty(self):
-        """Validates that local config global isn't set on empty load"""
-        self.assertIsNone(configuration.__local_config__)
-
-
     def test_config_load(self):
         """Validates that global config is actually set"""
         configuration.__local_config__ = None

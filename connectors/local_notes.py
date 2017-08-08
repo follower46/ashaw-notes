@@ -7,30 +7,35 @@ import time
 from datetime import date
 from shutil import copyfile
 from utils.search import timestamp_to_datestring, get_search_request
-from utils.configuration import load_config
+import utils.configuration
 
 
-config_section = 'local_notes'
+CONFIG_SECTION = 'local_notes'
 
 
 def is_enabled():
-    return config_section in load_config().get('base_config', 'data_backends')
+    """Checks if connector is enabled"""
+    return CONFIG_SECTION in utils.configuration.load_config().get('base_config', 'data_backends')
 
 
 def save_note(timestamp, note):
+    """Saves note to timestamp"""
     add_local_note(timestamp, note)
 
 
 def delete_note(timestamp):
+    """Removes note at supplied timestamp"""
     delete_local_note(timestamp)
 
 
 def update_note(original_timestamp, new_timestamp, new_note):
+    """Updates note at supplied timestamp"""
     delete_note(original_timestamp)
     save_note(new_timestamp, new_note)
 
 
 def find_notes(search_terms):
+    """Returns all notes corresponding to supplied search object"""
     request = get_search_request(search_terms)
     return find_local_notes(request)
 
@@ -92,13 +97,13 @@ def find_local_notes(search_request):
 
 
 def get_notes_file_location():
-    config = load_config()
-    return config.get(config_section, 'location')
+    config = utils.configuration.load_config()
+    return config.get(CONFIG_SECTION, 'location')
 
 
 def use_backup():
-    config = load_config()
-    return config.get(config_section, 'create_backup')
+    config = utils.configuration.load_config()
+    return config.get(CONFIG_SECTION, 'create_backup')
 
 
 def backup_notes():
