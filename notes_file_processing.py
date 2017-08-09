@@ -1,8 +1,8 @@
 #!/usr/bin/python3
 import re
 import time
-from utils.configuration import load_config
 from datetime import date
+from utils.configuration import load_config
 from redis_connector import get_redis_connection
 
 __notes__ = None
@@ -10,9 +10,9 @@ __line_regex__ = re.compile(r'\[([^\]]+)\] (.*)')
 
 
 
-''' Imports and loads up notes file
-'''
+"""Imports and loads up notes file"""
 def load_notes():
+    """Imports notes"""
     global __notes__
     config = load_config()
 
@@ -26,16 +26,17 @@ def load_notes():
 
 
 def parse_notes_line(notes_line):
+    """Inspects note line"""
     global __line_regex__
 
     line = __line_regex__.findall(notes_line)
     if line:
-
         return line[0][0], line[0][1]
     return None, None
 
 
 def import_notes():
+    """Processes Notes"""
     global __notes__
 
     redis = get_redis_connection()
@@ -55,6 +56,7 @@ def import_notes():
 
 
 def add_redis_note(timestamp, note):
+    """Add note to Redis"""
     redis = get_redis_connection()
     tokens = get_note_tokens(timestamp, note)
 
@@ -69,11 +71,13 @@ def add_redis_note(timestamp, note):
 
 
 def get_notes_file_location():
+    """Config Read"""
     config = load_config()
     return config.get('notes_file', 'location')
 
 
 def export_notes(export_path=None):
+    """Dump notes to flat file"""
     if not export_path:
         export_path = get_notes_file_location()
 
@@ -95,10 +99,12 @@ def export_notes(export_path=None):
 
 
 def get_date_header(timestamp):
+    """Build date header"""
     return date.fromtimestamp(timestamp).isoformat()
 
 
 def write_header(file, note):
+    """Build header"""
     write_line(file, "==========")
     write_line(file, note)
 
@@ -109,6 +115,7 @@ def write_line(file, line):
 
 
 def delete_note(timestamp):
+    """Remove Note"""
     # delete local note line
     #line = __notes__[timestamp]
 
@@ -133,26 +140,32 @@ def delete_note(timestamp):
 
 
 def get_note_line(note_key):
+    """Return final note"""
     return build_note_line(get_timestamp(note_key), get_redis_connection().get(note_key).decode('utf-8'))
 
 
 def build_note_line(timestamp, note):
+    """Build single note"""
     return "[%s] %s" % (time.asctime(time.localtime(timestamp)), note)
 
 
 def get_time(note_key):
+    """Build formatted timestamp"""
     return time.localtime(get_timestamp(note_key))
 
 
 def get_timestamp(note_key):
+    """Get timestamp from key"""
     return int(note_key[len(get_note_key('')):])
 
 
 def get_note_key(timestamp):
+    """Get key from timestamp"""
     return "note_%s" % timestamp
 
 
 def get_note_tokens(timestamp, line):
+    """Tokenize line note"""
     tokens = []
     parts = re.findall(r'(\w+)', line)
     for part in parts:
@@ -172,4 +185,3 @@ if __name__ == '__main__':
     #delete_note(1498842274)
     #import_notes()
     export_notes()
-    pass

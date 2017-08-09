@@ -12,11 +12,13 @@ noPrefix_regex = re.compile('^todo(ne\[[0-9]*\])?:|^(s)?lunch$|^cal:')
 
 
 def import_connectors():
+    """Dynamic imports"""
     #importlib.import_module("matplotlib.text")
     pass
 
 
 def write_note(note):
+    """Builds out note"""
     timestamp = int(time.time())
     print("writing %s" % timestamp)
     note = process_note(note)
@@ -26,16 +28,19 @@ def write_note(note):
 
 
 def process_note(note):
+    """Builds out note"""
     if noPrefix_regex.match(note):
         return note
     return "today: " + note
 
 
 class Completer:
+    """Auto completion class"""
     def __init__(self, words):
         self.words = words
         self.prefix = None
     def complete(self, prefix, index):
+        """Auto completion method"""
         if prefix != self.prefix:
             self.matching_words = [
                 w for w in self.words if w.startswith(prefix)
@@ -45,8 +50,6 @@ class Completer:
             return self.matching_words[index] + " "
         except IndexError:
             return None
-
-   
 
 
 if __name__ == '__main__':
