@@ -7,7 +7,7 @@ import redis
 import time
 from datetime import date
 from utils.search import timestamp_to_datestring, get_search_request
-from utils.configuration import load_config
+import utils.configuration
 
 
 CONFIG_SECTION = 'redis_notes'
@@ -15,7 +15,7 @@ CONFIG_SECTION = 'redis_notes'
 
 def is_enabled():
     """Checks if connector is enabled"""
-    return CONFIG_SECTION in load_config().get('base_config', 'data_backends')
+    return CONFIG_SECTION in utils.configuration.load_config().get('base_config', 'data_backends')
 
 
 def save_note(timestamp, note):
@@ -135,7 +135,7 @@ def find_redis_notes(search_request):
 def get_redis_connection():
     global __redis__
 
-    config = load_config()
+    config = utils.configuration.load_config()
 
     if not __redis__:
         __redis__ = redis.StrictRedis(
