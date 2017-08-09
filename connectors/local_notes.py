@@ -6,7 +6,7 @@ import re
 import time
 from datetime import date
 from shutil import copyfile
-from utils.search import timestamp_to_datestring, get_search_request
+import utils.search
 import utils.configuration
 
 
@@ -36,7 +36,7 @@ def update_note(original_timestamp, new_timestamp, new_note):
 
 def find_notes(search_terms):
     """Returns all notes corresponding to supplied search object"""
-    request = get_search_request(search_terms)
+    request = utils.search.get_search_request(search_terms)
     return find_local_notes(request)
 
 
@@ -140,7 +140,7 @@ def write_header(file, note):
 
 
 def build_note_line(timestamp, note):
-    return "[%s] %s" % (timestamp_to_datestring(timestamp), note)
+    return "[%s] %s" % (utils.search.timestamp_to_datestring(timestamp), note)
 
 
 def parse_note_line(notes_line):

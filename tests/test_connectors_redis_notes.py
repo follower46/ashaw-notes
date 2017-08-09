@@ -48,3 +48,12 @@ class LocalNotesTests(unittest.TestCase):
         redis_notes.update_note(12345, 23456, "test note")
         delete_redis_note.assert_called_once_with(12345)
         save_note.assert_called_once_with(23456, "test note")
+    
+    
+    @patch('utils.search.get_search_request')
+    @patch('connectors.redis_notes.find_redis_notes')
+    def test_find_notes(self, find_redis_notes, get_search_request):
+        """Verifies update_note is properly functioning"""
+        redis_notes.find_notes(["test note"])
+        get_search_request.assert_called_once_with(["test note"])
+        find_redis_notes.assert_called_once()

@@ -49,3 +49,12 @@ class LocalNotesTests(unittest.TestCase):
         local_notes.update_note(12345, 23456, "test note")
         delete_local_note.assert_called_once_with(12345)
         save_note.assert_called_once_with(23456, "test note")
+
+
+    @patch('utils.search.get_search_request')
+    @patch('connectors.local_notes.find_local_notes')
+    def test_find_notes(self, find_local_notes, get_search_request):
+        """Verifies update_note is properly functioning"""
+        local_notes.find_notes(["test note"])
+        get_search_request.assert_called_once_with(["test note"])
+        find_local_notes.assert_called_once()

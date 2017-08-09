@@ -47,6 +47,12 @@ class SearchRequest:
     page_limit = 0 # not implemented
     page_index = 1 # not implemented
     def __init__(self, search_terms):
+        self.inclusion_terms = []
+        self.exclusion_terms = []
+        self.date_range = []
+        self.page_limit = 0
+        self.page_index = 0
+        
         if search_terms is None:
             search_terms = []
         

@@ -6,7 +6,7 @@ import re
 import redis
 import time
 from datetime import date
-from utils.search import timestamp_to_datestring, get_search_request
+import utils.search
 import utils.configuration
 
 
@@ -36,7 +36,7 @@ def update_note(original_timestamp, new_timestamp, new_note):
 
 def find_notes(search_terms):
     """Returns all notes corresponding to supplied search object"""
-    request = get_search_request(search_terms)
+    request = utils.search.get_search_request(search_terms)
     return find_redis_notes(request)
 
 
