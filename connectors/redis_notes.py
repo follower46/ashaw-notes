@@ -3,9 +3,9 @@
 """ Redis Note Connector module
 """
 import re
-import redis
 import time
 from datetime import date
+import redis
 import utils.search
 import utils.configuration
 
@@ -53,7 +53,7 @@ def add_redis_note(timestamp, note):
     # Add search indices
     for token in tokens:
         redis.sadd(token, timestamp)
-    
+
     # Add notes
     print("    Adding %s note" % timestamp)
     redis.set(get_note_key(timestamp), note)
@@ -73,25 +73,36 @@ def delete_redis_note(timestamp):
     # Add search indices
     for token in tokens:
         redis.srem(token, timestamp)
-    
+
     # Add notes
     print("    Deleting %s note" % timestamp)
     redis.delete(get_note_key(timestamp))
 
 
 def get_note_key(timestamp):
+    """Generates redis keyname for timestamp"""
     return "note_%s" % timestamp
 
 
 def get_word_key(word):
+    """Generates redis keyname for word"""
     return "w_%s" % word.lower()
 
 
 def get_note_tokens(timestamp, line):
+    """Generates a list of tokens for a supplied note"""
     tokens = []
     parts = re.findall(r'(\w+)', line)
     for part in parts:
-        tokens.append(get_word_key(part.lower()))
+        token = get_word_key(part.lower())
+        if token not in tokens:
+            tokens.append(get_word_key(part.lower()))
+    
+    parts = re.findall(r'(#[A-z0-9-_]+)', line)
+    for part in parts:
+        token = get_word_key(part.lower())
+        if token not in tokens:
+            tokens.append(get_word_key(part.lower()))
 
     note_time = time.gmtime(timestamp)
     tokens.append("year_%s" % note_time.tm_year)

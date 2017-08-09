@@ -57,3 +57,76 @@ class LocalNotesTests(unittest.TestCase):
         redis_notes.find_notes(["test note"])
         get_search_request.assert_called_once_with(["test note"])
         find_redis_notes.assert_called_once()
+
+    @unpack
+    @data(
+        (1373500800, 'note_1373500800'),
+        (1450794188, 'note_1450794188'),
+        ('*', 'note_*'),
+    )
+    def test_get_note_key(self, timestamp, expectation):
+        """Verifies get_note_key is properly functioning"""
+        key = redis_notes.get_note_key(timestamp)
+        self.assertEqual(expectation, key)
+
+    @unpack
+    @data(
+        ('test', 'w_test'),
+        ('test1234', 'w_test1234'),
+        ('#hashtag', 'w_#hashtag'),
+        ('*', 'w_*'),
+    )
+    def test_get_word_key(self, word, expectation):
+        """Verifies get_word_key is properly functioning"""
+        key = redis_notes.get_word_key(word)
+        self.assertEqual(expectation, key)
+
+    @unpack
+    @data(
+        (1373500800, "a quick note", [
+            'w_a',
+            'w_quick',
+            'w_note',
+            'year_2013',
+            'month_7',
+            'day_11',
+            'hour_0',
+            'weekday_3']),
+        (1373500800, "a a a quick note", [
+            'w_a',
+            'w_quick',
+            'w_note',
+            'year_2013',
+            'month_7',
+            'day_11',
+            'hour_0',
+            'weekday_3']),
+        (1373500800, "special&&& characters #awesome", [
+            'w_special',
+            'w_characters',
+            'w_awesome',
+            'w_#awesome',
+            'year_2013',
+            'month_7',
+            'day_11',
+            'hour_0',
+            'weekday_3']),
+        (1450794188, "#yolo #sl4life #tons-of-hashtags #yolo", [
+            'w_yolo',
+            'w_sl4life',
+            'w_tons',
+            'w_of',
+            'w_hashtags',
+            'w_#yolo',
+            'w_#sl4life',
+            'w_#tons-of-hashtags',
+            'year_2015',
+            'month_12',
+            'day_22',
+            'hour_14',
+            'weekday_1']),
+    )
+    def test_get_note_tokens(self, timestamp, note, expectation):
+        """Verifies get_note_tokens is properly functioning"""
+        tokens = redis_notes.get_note_tokens(timestamp, note)
+        self.assertListEqual(expectation, tokens)
