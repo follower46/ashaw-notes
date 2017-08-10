@@ -149,8 +149,6 @@ def build_note_line(timestamp, note):
 
 def parse_note_line(notes_line):
     """Rips apart note line into its timestamp and note"""
-    global __line_regex__
-
     line = __line_regex__.findall(notes_line)
     if line:
         return line[0][0], line[0][1]
