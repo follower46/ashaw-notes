@@ -27,6 +27,8 @@ class LocalNotesTests(unittest.TestCase):
 
         self.assertEqual(expectation, local_notes.is_enabled())
 
+        mock_config.get.assert_called_once_with('base_config', 'data_backends')
+
 
     @patch('connectors.local_notes.add_local_note')
     def test_save_note(self, add_local_note):
@@ -58,6 +60,37 @@ class LocalNotesTests(unittest.TestCase):
         local_notes.find_notes(["test note"])
         get_search_request.assert_called_once_with(["test note"])
         find_local_notes.assert_called_once()
+
+
+    @patch('utils.configuration.load_config')
+    def test_get_notes_file_location(self, load_config):
+        """Verifies get_notes_file_location is properly functioning"""
+
+        mock_config = MagicMock()
+        mock_config.get.return_value = '/home/user/note'
+        load_config.return_value = mock_config
+
+        self.assertEqual('/home/user/note', local_notes.get_notes_file_location())
+
+        mock_config.get.assert_called_once_with('local_notes', 'location')
+
+
+    @unpack
+    @data(
+        (True, True),
+        (False, False),
+    )
+    @patch('utils.configuration.load_config')
+    def test_use_backup(self, enabled, expectation, load_config):
+        """Verifies use_backup is properly functioning"""
+
+        mock_config = MagicMock()
+        mock_config.get.return_value = enabled
+        load_config.return_value = mock_config
+
+        self.assertEqual(expectation, local_notes.use_backup())
+
+        mock_config.get.assert_called_once_with('local_notes', 'create_backup')
 
 
     @unpack
