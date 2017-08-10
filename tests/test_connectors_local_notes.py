@@ -169,7 +169,7 @@ class LocalNotesTests(unittest.TestCase):
         request = get_search_request(['needle', '!not'])
         filtered_notes = local_notes.find_local_notes(request)
         self.assertListEqual(
-            [(1373518802, 'needle'), (1373518805, 'needle number 2')], 
+            [(1373500802, 'needle'), (1373500805, 'needle number 2')], 
             filtered_notes)
 
     @patch('utils.configuration.load_config')

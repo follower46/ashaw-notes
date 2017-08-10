@@ -8,6 +8,7 @@ from datetime import datetime
 import shutil
 import utils.search
 import utils.configuration
+from utils.search import datestring_to_timestamp
 
 
 CONFIG_SECTION = 'local_notes'
@@ -94,7 +95,7 @@ def find_local_notes(search_request):
         timestamp, note = parse_note_line(line)
 
         if note:
-            epoch = int(time.mktime(time.strptime(timestamp)))
+            epoch = datestring_to_timestamp(timestamp)
             results.append((epoch, note))
     return results
 
