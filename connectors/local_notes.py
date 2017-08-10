@@ -123,6 +123,7 @@ def restore_from_backup():
 
 
 def is_header_found(file, timestamp):
+    """Checks for header in file"""
     header = get_date_header(timestamp)
     for line in file:
         if header in line:
@@ -131,19 +132,23 @@ def is_header_found(file, timestamp):
 
 
 def get_date_header(timestamp):
+    """Builds header"""
     return date.fromtimestamp(timestamp).isoformat()
 
 
 def write_header(file, note):
+    """Writes header to file"""
     write_line(file, "==========")
     write_line(file, note)
 
 
 def build_note_line(timestamp, note):
+    """Generates a note line for insertion"""
     return "[%s] %s" % (utils.search.timestamp_to_datestring(timestamp), note)
 
 
 def parse_note_line(notes_line):
+    """Rips apart note line into its timestamp and note"""
     global __line_regex__
 
     line = __line_regex__.findall(notes_line)
@@ -153,5 +158,6 @@ def parse_note_line(notes_line):
 
 
 def write_line(file, line):
+    """Writes line to file"""
     print(line)
-    file.write(line + "\n")
+    file.write("%s\n" % line)

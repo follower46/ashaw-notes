@@ -3,7 +3,7 @@
 
 import unittest
 from connectors import local_notes
-from mock import MagicMock, patch
+from mock import MagicMock, patch, call
 from ddt import ddt, data, unpack
 
 
@@ -58,3 +58,74 @@ class LocalNotesTests(unittest.TestCase):
         local_notes.find_notes(["test note"])
         get_search_request.assert_called_once_with(["test note"])
         find_local_notes.assert_called_once()
+
+
+    @unpack
+    @data(
+        ([], 1373500800, False),
+        (['not in here'], 1373500800, False),
+        (['note', '2013-07-10', '=========='], 1373500800, True),
+    )
+    def test_is_header_found(self, file, timestamp, expectation):
+        """Verifies is_header_found is properly functioning"""
+        self.assertEqual(
+            expectation,
+            local_notes.is_header_found(file, timestamp)
+        )
+
+
+    def test_get_date_header(self):
+        """Verifies get_date_header is properly functioning"""
+        header = local_notes.get_date_header(1373500800)
+        self.assertEqual('2013-07-10', header)
+
+
+    def test_write_header(self):
+        """Verifies write_header is properly functioning"""
+        file = MagicMock()
+        local_notes.write_header(file, "My Header")
+
+        file.write.assert_has_calls([
+            call("==========\n"),
+            call("My Header\n")
+        ])
+
+
+    def test_build_note_line(self):
+        """Verifies build_note_line is properly functioning"""
+        line = local_notes.build_note_line(
+            1373500800,
+            "today: testing"
+        )
+
+        self.assertEqual(
+            '[Thu Jul 11 00:00:00 2013] today: testing',
+            line
+        )
+
+
+    @unpack
+    @data(
+        ('[Thu Jul 11 00:00:00 2013] today: testing', (
+            'Thu Jul 11 00:00:00 2013', 'today: testing'
+        )),
+        ('[Thu Jul 11 00:00:00 2013] today: [Thu Jul 11 00:00:00 2013]', (
+            'Thu Jul 11 00:00:00 2013', 'today: [Thu Jul 11 00:00:00 2013]'
+        )),
+        ('bad line', (None, None)),
+    )
+    def test_parse_note_line(self, line, expectation):
+        """Verifies parse_note_line is properly functioning"""
+        self.assertEqual(
+            expectation,
+            local_notes.parse_note_line(line)
+        )
+
+
+    def test_write_line(self):
+        """Verifies write_line is properly functioning"""
+        line = "[Thu Jul 11 00:00:00 2013] today: testing"
+        file = MagicMock()
+        local_notes.write_line(file, line)
+
+        file.write.assert_called_once_with("%s\n" % line)
