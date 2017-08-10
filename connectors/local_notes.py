@@ -68,6 +68,7 @@ def delete_local_note(timestamp):
 
 
 def find_local_notes(search_request):
+    """Searches notes file for given request"""
     results = []
 
     reading_file = open(get_notes_file_location(), "r+", encoding="utf8")

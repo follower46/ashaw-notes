@@ -3,8 +3,9 @@
 
 import unittest
 from connectors import local_notes
-from mock import MagicMock, patch, call
+from mock import MagicMock, mock_open, patch, call
 from ddt import ddt, data, unpack
+from utils.search import get_search_request
 
 
 @ddt
@@ -152,6 +153,25 @@ class LocalNotesTests(unittest.TestCase):
         write_file.close.assert_called_once()
 
 
+    @patch('builtins.open', new_callable=mock_open)
+    @patch('connectors.local_notes.get_notes_file_location')
+    def test_find_local_notes(self, get_notes_file_location, mopen):
+        """Verifies get_notes_file_location is properly functioning"""
+        get_notes_file_location.return_value = '/home/user/notes'
+        mopen.return_value = [
+            '[Thu Jul 11 00:00:00 2013] haystack 2',
+            '[Thu Jul 11 00:00:01 2013] haystack 1',
+            '[Thu Jul 11 00:00:02 2013] needle',
+            '[Thu Jul 11 00:00:03 2013] haystack 3',
+            '[Thu Jul 11 00:00:04 2013] needle...not.',
+            '[Thu Jul 11 00:00:05 2013] needle number 2',
+        ]
+        request = get_search_request(['needle', '!not'])
+        filtered_notes = local_notes.find_local_notes(request)
+        self.assertListEqual(
+            [(1373518802, 'needle'), (1373518805, 'needle number 2')], 
+            filtered_notes)
+
     @patch('utils.configuration.load_config')
     def test_get_notes_file_location(self, load_config):
         """Verifies get_notes_file_location is properly functioning"""
@@ -197,7 +217,7 @@ class LocalNotesTests(unittest.TestCase):
     @patch('shutil.copyfile')
     @patch('connectors.local_notes.use_backup')
     @patch('connectors.local_notes.get_notes_file_location')
-    def test_backup_notes(self, get_notes_file_location, use_backup, copyfile):
+    def test_backup_notes_enabled(self, get_notes_file_location, use_backup, copyfile):
         """Verifies backup_notes is properly functioning"""
         use_backup.return_value = True
         get_notes_file_location.return_value = '/home/user/note'
