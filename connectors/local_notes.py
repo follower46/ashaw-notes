@@ -4,7 +4,7 @@
 """
 import re
 import time
-from datetime import date
+from datetime import datetime
 from shutil import copyfile
 import utils.search
 import utils.configuration
@@ -133,7 +133,7 @@ def is_header_found(file, timestamp):
 
 def get_date_header(timestamp):
     """Builds header"""
-    return date.fromtimestamp(timestamp).isoformat()
+    return datetime.utcfromtimestamp(timestamp).isoformat()
 
 
 def write_header(file, note):

@@ -64,7 +64,7 @@ class LocalNotesTests(unittest.TestCase):
     @data(
         ([], 1373500800, False),
         (['not in here'], 1373500800, False),
-        (['note', '2013-07-10', '=========='], 1373500800, True),
+        (['note', '2013-07-11T00:00:00', '=========='], 1373500800, True),
     )
     def test_is_header_found(self, file, timestamp, expectation):
         """Verifies is_header_found is properly functioning"""
@@ -77,7 +77,7 @@ class LocalNotesTests(unittest.TestCase):
     def test_get_date_header(self):
         """Verifies get_date_header is properly functioning"""
         header = local_notes.get_date_header(1373500800)
-        self.assertEqual('2013-07-10', header)
+        self.assertEqual('2013-07-11T00:00:00', header)
 
 
     def test_write_header(self):
