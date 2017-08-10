@@ -2,14 +2,25 @@
 """
 
 import unittest
+import fakeredis
 from connectors import redis_notes
-from mock import MagicMock, patch
+from mock import MagicMock, patch, call
 from ddt import ddt, data, unpack
 
 
 @ddt
 class LocalNotesTests(unittest.TestCase):
     """Unit Testing Local Notes"""
+
+    def setUp(self):
+        """Setup fake redis for testing."""
+        self.redis = fakeredis.FakeStrictRedis()
+
+
+    def tearDown(self):
+        """Clear data in fakeredis."""
+        self.redis.flushall()
+
 
     @unpack
     @data(
@@ -33,7 +44,7 @@ class LocalNotesTests(unittest.TestCase):
         """Verifies save_note is properly functioning"""
         redis_notes.save_note(12345, "test note")
         add_redis_note.assert_called_once_with(12345, "test note")
-    
+
     @patch('connectors.redis_notes.delete_redis_note')
     def test_delete_note(self, delete_redis_note):
         """Verifies delete_note is properly functioning"""
@@ -48,8 +59,8 @@ class LocalNotesTests(unittest.TestCase):
         redis_notes.update_note(12345, 23456, "test note")
         delete_redis_note.assert_called_once_with(12345)
         save_note.assert_called_once_with(23456, "test note")
-    
-    
+
+
     @patch('utils.search.get_search_request')
     @patch('connectors.redis_notes.find_redis_notes')
     def test_find_notes(self, find_redis_notes, get_search_request):
@@ -130,3 +141,34 @@ class LocalNotesTests(unittest.TestCase):
         """Verifies get_note_tokens is properly functioning"""
         tokens = redis_notes.get_note_tokens(timestamp, note)
         self.assertListEqual(expectation, tokens)
+
+
+    @patch('utils.configuration.load_config')
+    def test_get_redis_connection(self, load_config):
+        """Verifies that Redis is loaded correctly"""
+        config = MagicMock()
+        config.get.side_effect = [
+            'myredis.server',
+            4000,
+            0,
+            'supersecurepassword',
+        ]
+        load_config.return_value = config
+
+        redis_connection = redis_notes.get_redis_connection()
+
+        connection_kwargs = redis_connection.connection_pool.connection_kwargs
+        self.assertEqual('myredis.server', connection_kwargs['host'])
+        self.assertEqual(4000, connection_kwargs['port'])
+        self.assertEqual(0, connection_kwargs['db'])
+        self.assertEqual('supersecurepassword', connection_kwargs['password'])
+
+        self.assertListEqual(
+            config.get.mock_calls,
+            [
+                call('redis_notes', 'endpoint'),
+                call('redis_notes', 'port'),
+                call('redis_notes', 'db'),
+                call('redis_notes', 'password'),
+            ]
+        )

@@ -114,44 +114,60 @@ def get_note_tokens(timestamp, line):
 
 
 def get_common_words():
-    redis = get_redis_connection()
-    words = redis.keys(get_word_key("*"))
+    """Finds all common words in Redis"""
+    redis_connection = get_redis_connection()
+    words = redis_connection.keys(get_word_key("*"))
     return [word[2:].decode('utf-8') for word in words]
 
 
 def find_redis_notes(search_request):
-    redis = get_redis_connection()
+    redis_connection = get_redis_connection()
     timestamps = set([])
 
     if search_request.inclusion_terms:
-        timestamps = redis.sinter([get_word_key(term) for term in search_request.inclusion_terms])
+        timestamps = redis_connection.sinter(
+            [get_word_key(term)
+             for term in search_request.inclusion_terms]
+        )
         if search_request.exclusion_terms:
-            timestamps = timestamps.difference(redis.sunion([get_word_key(term) for term in search_request.exclusion_terms]))
+            timestamps = timestamps.difference(
+                redis_connection.sunion(
+                    [get_word_key(term)
+                     for term in search_request.exclusion_terms]
+                )
+            )
     elif search_request.exclusion_terms:
-        timestamps = set([key[len(get_note_key('')):] for key in set(redis.keys(get_note_key("*")))])
-        exclusion_timestamps = redis.sunion([get_word_key(term) for term in search_request.exclusion_terms])
+        timestamps = set(
+            [key[len(get_note_key('')):]
+             for key in set(redis_connection.keys(get_note_key("*")))]
+        )
+        exclusion_timestamps = redis_connection.sunion(
+            [get_word_key(term)
+             for term in search_request.exclusion_terms]
+        )
 
         timestamps = timestamps.difference(exclusion_timestamps)
     else:
-        timestamps = [key[len(get_note_key('')):] for key in set(redis.keys(get_note_key("*")))]
+        timestamps = [key[len(get_note_key('')):] for key in set(redis_connection.keys(get_note_key("*")))]
 
     timestamps = [int(timestamp.decode('utf-8')) for timestamp in timestamps]
     timestamps.sort()
 
-    notes = redis.mget([get_note_key(timestamp) for timestamp in timestamps])
+    notes = redis_connection.mget([get_note_key(timestamp) for timestamp in timestamps])
     notes = [note.decode('utf-8') for note in notes]
     return list(zip(timestamps, notes))
 
 
 def get_redis_connection():
+    """Returns a common redis connection"""
     global __redis__
 
     config = utils.configuration.load_config()
 
     if not __redis__:
         __redis__ = redis.StrictRedis(
-            host=config.get(CONFIG_SECTION, 'endpoint'), 
-            port=config.get(CONFIG_SECTION, 'port'), 
+            host=config.get(CONFIG_SECTION, 'endpoint'),
+            port=config.get(CONFIG_SECTION, 'port'),
             db=config.get(CONFIG_SECTION, 'db'),
             password=config.get(CONFIG_SECTION, 'password')
         )
