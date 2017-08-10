@@ -5,7 +5,7 @@
 import re
 import time
 from datetime import datetime
-from shutil import copyfile
+import shutil
 import utils.search
 import utils.configuration
 
@@ -45,6 +45,7 @@ def find_notes(search_terms):
 __line_regex__ = re.compile(r'\[([^\]]+)\] (.*)')
 
 def add_local_note(timestamp, note):
+    """Inserts note into local file"""
     backup_notes()
     reading_file = open(get_notes_file_location(), "r+", encoding="utf8")
     writing_file = open(get_notes_file_location(), "a+", encoding="utf8")
@@ -56,6 +57,7 @@ def add_local_note(timestamp, note):
 
 
 def delete_local_note(timestamp):
+    """Removes note at timestamp from file"""
     backup_notes()
     log = open(get_notes_file_location(), "r+", encoding="utf8").readlines()
     writing_file = open(get_notes_file_location(), "w", encoding="utf8")
@@ -97,28 +99,31 @@ def find_local_notes(search_request):
 
 
 def get_notes_file_location():
+    """Returns the note file location from the config"""
     config = utils.configuration.load_config()
     return config.get(CONFIG_SECTION, 'location')
 
 
 def use_backup():
+    """Checks if local backups are enabled"""
     config = utils.configuration.load_config()
     return config.get(CONFIG_SECTION, 'create_backup')
 
 
 def backup_notes():
+    """Creates a local backup of the notes file"""
     if not use_backup():
         return
-    destination = get_notes_file_location()
-    copyfile(get_notes_file_location(), 
+    shutil.copyfile(get_notes_file_location(), 
              "%s.bak" % get_notes_file_location())
 
 
 def restore_from_backup():
+    """Restores previous note file"""
     if not use_backup():
         return
     destination = get_notes_file_location()
-    copyfile("%s.bak" % get_notes_file_location(), 
+    shutil.copyfile("%s.bak" % get_notes_file_location(), 
              get_notes_file_location())
 
 

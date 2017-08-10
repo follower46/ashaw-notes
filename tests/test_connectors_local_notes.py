@@ -62,6 +62,96 @@ class LocalNotesTests(unittest.TestCase):
         find_local_notes.assert_called_once()
 
 
+    @patch('connectors.local_notes.write_line')
+    @patch('connectors.local_notes.write_header')
+    @patch('connectors.local_notes.is_header_found')
+    @patch('connectors.local_notes.get_notes_file_location')
+    @patch('builtins.open')
+    @patch('connectors.local_notes.backup_notes')
+    def test_add_local_note(self,
+                            backup_notes,
+                            mopen,
+                            get_notes_file_location,
+                            is_header_found,
+                            write_header,
+                            write_line):
+        """Verifies add_local_note is properly functioning"""
+        get_notes_file_location.return_value = '/home/user/notes'
+        is_header_found.return_value = True
+        read_file = MagicMock()
+        write_file = MagicMock()
+        mopen.side_effect = [read_file, write_file]
+
+        local_notes.add_local_note(1373500800, "testing")
+
+        backup_notes.assert_called_once()
+        write_header.assert_not_called()
+        write_line.assert_called_once_with(write_file, '[Thu Jul 11 00:00:00 2013] testing')
+        read_file.close.assert_called_once()
+        write_file.close.assert_called_once()
+
+
+    @patch('connectors.local_notes.write_line')
+    @patch('connectors.local_notes.write_header')
+    @patch('connectors.local_notes.is_header_found')
+    @patch('connectors.local_notes.get_notes_file_location')
+    @patch('builtins.open')
+    @patch('connectors.local_notes.backup_notes')
+    def test_add_local_note_with_header(self,
+                            backup_notes,
+                            mopen,
+                            get_notes_file_location,
+                            is_header_found,
+                            write_header,
+                            write_line):
+        """Verifies add_local_note is properly functioning"""
+        get_notes_file_location.return_value = '/home/user/notes'
+        is_header_found.return_value = False
+        read_file = MagicMock()
+        write_file = MagicMock()
+        mopen.side_effect = [read_file, write_file]
+
+        local_notes.add_local_note(1373500800, "testing")
+
+        backup_notes.assert_called_once()
+        write_header.assert_called_once_with(write_file, '2013-07-11T00:00:00')
+        write_line.assert_called_once_with(write_file, '[Thu Jul 11 00:00:00 2013] testing')
+        read_file.close.assert_called_once()
+        write_file.close.assert_called_once()
+
+
+    @patch('connectors.local_notes.get_notes_file_location')
+    @patch('builtins.open')
+    @patch('connectors.local_notes.backup_notes')
+    def test_delete_local_note(self,
+                               backup_notes,
+                               mopen,
+                               get_notes_file_location):
+        """Verifies delete_local_note is properly functioning"""
+        get_notes_file_location.return_value = '/home/user/notes'
+        read_file = MagicMock()
+        write_file = MagicMock()
+        read_file.readlines.return_value = [
+            '[Thu Jul 10 23:59:00 2013] not it',
+            '[Thu Jul 11 00:00:00 2013] Im it',
+            '[Thu Jul 11 00:00:01 2013] not it',
+        ]
+        write_file.write.return_value = True
+        mopen.side_effect = [read_file, write_file]
+
+        local_notes.delete_local_note(1373500800)
+
+        backup_notes.assert_called_once()
+        self.assertListEqual(
+            write_file.write.mock_calls,
+            [
+                call('[Thu Jul 10 23:59:00 2013] not it'),
+                call('[Thu Jul 11 00:00:01 2013] not it'),
+            ]
+        )
+        write_file.close.assert_called_once()
+
+
     @patch('utils.configuration.load_config')
     def test_get_notes_file_location(self, load_config):
         """Verifies get_notes_file_location is properly functioning"""
@@ -91,6 +181,60 @@ class LocalNotesTests(unittest.TestCase):
         self.assertEqual(expectation, local_notes.use_backup())
 
         mock_config.get.assert_called_once_with('local_notes', 'create_backup')
+
+
+    @patch('shutil.copyfile')
+    @patch('connectors.local_notes.use_backup')
+    def test_backup_notes_disabled(self, use_backup, copyfile):
+        """Verifies backup_notes doesn't run if disabled"""
+        use_backup.return_value = False
+        local_notes.backup_notes()
+
+        use_backup.assert_called_once()
+        copyfile.get.assert_not_called()
+
+
+    @patch('shutil.copyfile')
+    @patch('connectors.local_notes.use_backup')
+    @patch('connectors.local_notes.get_notes_file_location')
+    def test_backup_notes(self, get_notes_file_location, use_backup, copyfile):
+        """Verifies backup_notes is properly functioning"""
+        use_backup.return_value = True
+        get_notes_file_location.return_value = '/home/user/note'
+        local_notes.backup_notes()
+
+        use_backup.assert_called_once()
+        copyfile.assert_called_once_with(
+            '/home/user/note',
+            '/home/user/note.bak'
+        )
+
+
+    @patch('shutil.copyfile')
+    @patch('connectors.local_notes.use_backup')
+    def test_restore_from_backup_disabled(self, use_backup, copyfile):
+        """Verifies restore_from_backup doesn't run if disabled"""
+        use_backup.return_value = False
+        local_notes.restore_from_backup()
+
+        use_backup.assert_called_once()
+        copyfile.get.assert_not_called()
+
+
+    @patch('shutil.copyfile')
+    @patch('connectors.local_notes.use_backup')
+    @patch('connectors.local_notes.get_notes_file_location')
+    def test_backup_notes(self, get_notes_file_location, use_backup, copyfile):
+        """Verifies restore_from_backup is properly functioning"""
+        use_backup.return_value = True
+        get_notes_file_location.return_value = '/home/user/note'
+        local_notes.restore_from_backup()
+
+        use_backup.assert_called_once()
+        copyfile.assert_called_once_with(
+            '/home/user/note.bak',
+            '/home/user/note'
+        )
 
 
     @unpack
