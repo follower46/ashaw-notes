@@ -4,10 +4,9 @@
 """
 import re
 import time
-from datetime import date
 import redis
-import utils.search
-import utils.configuration
+import ashaw_notes.utils.search
+import ashaw_notes.utils.configuration
 
 
 CONFIG_SECTION = 'redis_notes'
@@ -15,7 +14,8 @@ CONFIG_SECTION = 'redis_notes'
 
 def is_enabled():
     """Checks if connector is enabled"""
-    return CONFIG_SECTION in utils.configuration.load_config().get('base_config', 'data_backends')
+    backends = ashaw_notes.utils.configuration.load_config().get('base_config', 'data_backends')
+    return CONFIG_SECTION in backends
 
 
 def save_note(timestamp, note):
@@ -36,7 +36,7 @@ def update_note(original_timestamp, new_timestamp, new_note):
 
 def find_notes(search_terms):
     """Returns all notes corresponding to supplied search object"""
-    request = utils.search.get_search_request(search_terms)
+    request = ashaw_notes.utils.search.get_search_request(search_terms)
     return find_redis_notes(request)
 
 
@@ -97,7 +97,7 @@ def get_note_tokens(timestamp, line):
         token = get_word_key(part.lower())
         if token not in tokens:
             tokens.append(get_word_key(part.lower()))
-    
+
     parts = re.findall(r'(#[A-z0-9-_]+)', line)
     for part in parts:
         token = get_word_key(part.lower())
@@ -149,7 +149,8 @@ def find_redis_notes(search_request):
 
         timestamps = timestamps.difference(exclusion_timestamps)
     else:
-        timestamps = [key[len(get_note_key('')):] for key in set(redis_connection.keys(get_note_key("*")))]
+        timestamps = [key[len(get_note_key('')):]
+                      for key in set(redis_connection.keys(get_note_key("*")))]
 
     timestamps = [int(timestamp.decode('utf-8')) for timestamp in timestamps]
     timestamps.sort()
@@ -163,7 +164,7 @@ def get_redis_connection():
     """Returns a common redis connection"""
     global __redis__
 
-    config = utils.configuration.load_config()
+    config = ashaw_notes.utils.configuration.load_config()
 
     if not __redis__:
         __redis__ = redis.StrictRedis(

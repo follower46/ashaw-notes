@@ -2,7 +2,7 @@
 """
 
 import unittest
-from utils import search
+from ashaw_notes.utils import search
 from ddt import ddt, data, unpack
 
 

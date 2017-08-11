@@ -2,10 +2,10 @@
 """
 
 import unittest
-from connectors import local_notes
+from ashaw_notes.connectors import local_notes
 from mock import MagicMock, mock_open, patch, call
 from ddt import ddt, data, unpack
-from utils.search import get_search_request
+from ashaw_notes.utils.search import get_search_request
 
 
 @ddt
@@ -18,7 +18,7 @@ class LocalNotesTests(unittest.TestCase):
         ('redis_notes, local_notes', True),
         ('redis_notes', False),
     )
-    @patch('utils.configuration.load_config')
+    @patch('ashaw_notes.utils.configuration.load_config')
     def test_is_enabled(self, string, expectation, load_config):
         """Verifies is_enabled is properly functioning"""
 
@@ -31,22 +31,22 @@ class LocalNotesTests(unittest.TestCase):
         mock_config.get.assert_called_once_with('base_config', 'data_backends')
 
 
-    @patch('connectors.local_notes.add_local_note')
+    @patch('ashaw_notes.connectors.local_notes.add_local_note')
     def test_save_note(self, add_local_note):
         """Verifies save_note is properly functioning"""
         local_notes.save_note(12345, "test note")
         add_local_note.assert_called_once_with(12345, "test note")
 
 
-    @patch('connectors.local_notes.delete_local_note')
+    @patch('ashaw_notes.connectors.local_notes.delete_local_note')
     def test_delete_note(self, delete_local_note):
         """Verifies delete_note is properly functioning"""
         local_notes.delete_note(12345)
         delete_local_note.assert_called_once_with(12345)
 
 
-    @patch('connectors.local_notes.save_note')
-    @patch('connectors.local_notes.delete_local_note')
+    @patch('ashaw_notes.connectors.local_notes.save_note')
+    @patch('ashaw_notes.connectors.local_notes.delete_local_note')
     def test_update_note(self, delete_local_note, save_note):
         """Verifies update_note is properly functioning"""
         local_notes.update_note(12345, 23456, "test note")
@@ -54,8 +54,8 @@ class LocalNotesTests(unittest.TestCase):
         save_note.assert_called_once_with(23456, "test note")
 
 
-    @patch('utils.search.get_search_request')
-    @patch('connectors.local_notes.find_local_notes')
+    @patch('ashaw_notes.utils.search.get_search_request')
+    @patch('ashaw_notes.connectors.local_notes.find_local_notes')
     def test_find_notes(self, find_local_notes, get_search_request):
         """Verifies update_note is properly functioning"""
         local_notes.find_notes(["test note"])
@@ -63,12 +63,12 @@ class LocalNotesTests(unittest.TestCase):
         find_local_notes.assert_called_once()
 
 
-    @patch('connectors.local_notes.write_line')
-    @patch('connectors.local_notes.write_header')
-    @patch('connectors.local_notes.is_header_found')
-    @patch('connectors.local_notes.get_notes_file_location')
+    @patch('ashaw_notes.connectors.local_notes.write_line')
+    @patch('ashaw_notes.connectors.local_notes.write_header')
+    @patch('ashaw_notes.connectors.local_notes.is_header_found')
+    @patch('ashaw_notes.connectors.local_notes.get_notes_file_location')
     @patch('builtins.open')
-    @patch('connectors.local_notes.backup_notes')
+    @patch('ashaw_notes.connectors.local_notes.backup_notes')
     def test_add_local_note(self,
                             backup_notes,
                             mopen,
@@ -92,19 +92,19 @@ class LocalNotesTests(unittest.TestCase):
         write_file.close.assert_called_once()
 
 
-    @patch('connectors.local_notes.write_line')
-    @patch('connectors.local_notes.write_header')
-    @patch('connectors.local_notes.is_header_found')
-    @patch('connectors.local_notes.get_notes_file_location')
+    @patch('ashaw_notes.connectors.local_notes.write_line')
+    @patch('ashaw_notes.connectors.local_notes.write_header')
+    @patch('ashaw_notes.connectors.local_notes.is_header_found')
+    @patch('ashaw_notes.connectors.local_notes.get_notes_file_location')
     @patch('builtins.open')
-    @patch('connectors.local_notes.backup_notes')
+    @patch('ashaw_notes.connectors.local_notes.backup_notes')
     def test_add_local_note_with_header(self,
-                            backup_notes,
-                            mopen,
-                            get_notes_file_location,
-                            is_header_found,
-                            write_header,
-                            write_line):
+                                        backup_notes,
+                                        mopen,
+                                        get_notes_file_location,
+                                        is_header_found,
+                                        write_header,
+                                        write_line):
         """Verifies add_local_note is properly functioning"""
         get_notes_file_location.return_value = '/home/user/notes'
         is_header_found.return_value = False
@@ -121,9 +121,9 @@ class LocalNotesTests(unittest.TestCase):
         write_file.close.assert_called_once()
 
 
-    @patch('connectors.local_notes.get_notes_file_location')
+    @patch('ashaw_notes.connectors.local_notes.get_notes_file_location')
     @patch('builtins.open')
-    @patch('connectors.local_notes.backup_notes')
+    @patch('ashaw_notes.connectors.local_notes.backup_notes')
     def test_delete_local_note(self,
                                backup_notes,
                                mopen,
@@ -154,7 +154,7 @@ class LocalNotesTests(unittest.TestCase):
 
 
     @patch('builtins.open', new_callable=mock_open)
-    @patch('connectors.local_notes.get_notes_file_location')
+    @patch('ashaw_notes.connectors.local_notes.get_notes_file_location')
     def test_find_local_notes(self, get_notes_file_location, mopen):
         """Verifies get_notes_file_location is properly functioning"""
         get_notes_file_location.return_value = '/home/user/notes'
@@ -172,7 +172,7 @@ class LocalNotesTests(unittest.TestCase):
             [(1373500802, 'needle'), (1373500805, 'needle number 2')],
             filtered_notes)
 
-    @patch('utils.configuration.load_config')
+    @patch('ashaw_notes.utils.configuration.load_config')
     def test_get_notes_file_location(self, load_config):
         """Verifies get_notes_file_location is properly functioning"""
 
@@ -190,7 +190,7 @@ class LocalNotesTests(unittest.TestCase):
         (True, True),
         (False, False),
     )
-    @patch('utils.configuration.load_config')
+    @patch('ashaw_notes.utils.configuration.load_config')
     def test_use_backup(self, enabled, expectation, load_config):
         """Verifies use_backup is properly functioning"""
 
@@ -204,7 +204,7 @@ class LocalNotesTests(unittest.TestCase):
 
 
     @patch('shutil.copyfile')
-    @patch('connectors.local_notes.use_backup')
+    @patch('ashaw_notes.connectors.local_notes.use_backup')
     def test_backup_notes_disabled(self, use_backup, copyfile):
         """Verifies backup_notes doesn't run if disabled"""
         use_backup.return_value = False
@@ -215,8 +215,8 @@ class LocalNotesTests(unittest.TestCase):
 
 
     @patch('shutil.copyfile')
-    @patch('connectors.local_notes.use_backup')
-    @patch('connectors.local_notes.get_notes_file_location')
+    @patch('ashaw_notes.connectors.local_notes.use_backup')
+    @patch('ashaw_notes.connectors.local_notes.get_notes_file_location')
     def test_backup_notes_enabled(self, get_notes_file_location, use_backup, copyfile):
         """Verifies backup_notes is properly functioning"""
         use_backup.return_value = True
@@ -231,7 +231,7 @@ class LocalNotesTests(unittest.TestCase):
 
 
     @patch('shutil.copyfile')
-    @patch('connectors.local_notes.use_backup')
+    @patch('ashaw_notes.connectors.local_notes.use_backup')
     def test_restore_from_backup_disabled(self, use_backup, copyfile):
         """Verifies restore_from_backup doesn't run if disabled"""
         use_backup.return_value = False
@@ -242,8 +242,8 @@ class LocalNotesTests(unittest.TestCase):
 
 
     @patch('shutil.copyfile')
-    @patch('connectors.local_notes.use_backup')
-    @patch('connectors.local_notes.get_notes_file_location')
+    @patch('ashaw_notes.connectors.local_notes.use_backup')
+    @patch('ashaw_notes.connectors.local_notes.get_notes_file_location')
     def test_backup_notes(self, get_notes_file_location, use_backup, copyfile):
         """Verifies restore_from_backup is properly functioning"""
         use_backup.return_value = True

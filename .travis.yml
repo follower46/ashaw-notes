@@ -13,6 +13,6 @@ install:
   - pip install coverage
   - pip install coveralls
 script:
-  - nosetests -v --with-coverage --cover-erase --cover-package=utils,connectors,quicknote
+  - nosetests -v --with-coverage --cover-erase --cover-package=ashaw_notes,scripts
 after_success:
   - coveralls

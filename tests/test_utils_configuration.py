@@ -3,7 +3,7 @@
 
 import unittest
 import configparser
-from utils import configuration
+from ashaw_notes.utils import configuration
 from mock import patch
 
 

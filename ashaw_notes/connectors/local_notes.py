@@ -6,9 +6,9 @@ import re
 import time
 from datetime import datetime
 import shutil
-import utils.search
-import utils.configuration
-from utils.search import datestring_to_timestamp
+import ashaw_notes.utils.search
+import ashaw_notes.utils.configuration
+from ashaw_notes.utils.search import datestring_to_timestamp
 
 
 CONFIG_SECTION = 'local_notes'
@@ -16,7 +16,8 @@ CONFIG_SECTION = 'local_notes'
 
 def is_enabled():
     """Checks if connector is enabled"""
-    return CONFIG_SECTION in utils.configuration.load_config().get('base_config', 'data_backends')
+    backends = ashaw_notes.utils.configuration.load_config().get('base_config', 'data_backends')
+    return CONFIG_SECTION in backends
 
 
 def save_note(timestamp, note):
@@ -37,7 +38,7 @@ def update_note(original_timestamp, new_timestamp, new_note):
 
 def find_notes(search_terms):
     """Returns all notes corresponding to supplied search object"""
-    request = utils.search.get_search_request(search_terms)
+    request = ashaw_notes.utils.search.get_search_request(search_terms)
     return find_local_notes(request)
 
 
@@ -102,13 +103,13 @@ def find_local_notes(search_request):
 
 def get_notes_file_location():
     """Returns the note file location from the config"""
-    config = utils.configuration.load_config()
+    config = ashaw_notes.utils.configuration.load_config()
     return config.get(CONFIG_SECTION, 'location')
 
 
 def use_backup():
     """Checks if local backups are enabled"""
-    config = utils.configuration.load_config()
+    config = ashaw_notes.utils.configuration.load_config()
     return config.get(CONFIG_SECTION, 'create_backup')
 
 
@@ -151,7 +152,7 @@ def write_header(file, note):
 
 def build_note_line(timestamp, note):
     """Generates a note line for insertion"""
-    return "[%s] %s" % (utils.search.timestamp_to_datestring(timestamp), note)
+    return "[%s] %s" % (ashaw_notes.utils.search.timestamp_to_datestring(timestamp), note)
 
 
 def parse_note_line(notes_line):

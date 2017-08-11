@@ -52,10 +52,10 @@ class SearchRequest:
         self.date_range = []
         self.page_limit = 0
         self.page_index = 0
-        
+
         if search_terms is None:
             search_terms = []
-        
+
         for term in search_terms:
             if term.find("!") == 0:
                 self.exclusion_terms.append(term[1:].lower())

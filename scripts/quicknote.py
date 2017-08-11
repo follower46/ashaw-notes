@@ -4,17 +4,28 @@ import re
 import time
 import readline
 import importlib
+import ashaw_notes.utils.configuration
 
-import connectors.redis_notes as redis_notes
-import connectors.local_notes as local_notes
+import ashaw_notes.connectors.redis_notes as redis_notes
+import ashaw_notes.connectors.local_notes as local_notes
 
-noPrefix_regex = re.compile('^todo(ne\[[0-9]*\])?:|^(s)?lunch$|^cal:')
+noPrefix_regex = re.compile(r'^todo(ne\[[0-9]*\])?:|^(s)?lunch$|^cal:')
 
 
 def import_connectors():
     """Dynamic imports"""
-    #importlib.import_module("matplotlib.text")
-    pass
+    modules = []
+    module_names = ashaw_notes.utils.configuration.load_config().get('base_config', 'data_backends')
+    for module_name in [name.strip() for name in module_names.split(',')]:
+        modules.append(importlib.import_module("connectors.%s" % module_name))
+    return modules
+
+
+def setup_auto_complete():
+    """Builds up Completer"""
+    completer = Completer(redis_notes.get_common_words())
+    readline.parse_and_bind("tab: complete")
+    readline.set_completer(completer.complete)
 
 
 def write_note(note):
@@ -39,6 +50,7 @@ class Completer:
     def __init__(self, words):
         self.words = words
         self.prefix = None
+        self.matching_words = []
     def complete(self, prefix, index):
         """Auto completion method"""
         if prefix != self.prefix:
@@ -54,13 +66,5 @@ class Completer:
 
 if __name__ == '__main__':
     import_connectors()
-
-    try:
-        completer = Completer(redis_notes.get_common_words())
-
-        readline.parse_and_bind("tab: complete")
-        readline.set_completer(completer.complete)
-    except:
-        pass
-
+    setup_auto_complete()
     write_note(input("note: "))
