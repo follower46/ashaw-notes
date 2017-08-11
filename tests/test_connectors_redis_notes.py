@@ -101,7 +101,18 @@ class LocalNotesTests(unittest.TestCase):
 
 
     @patch('connectors.redis_notes.get_redis_connection')
-    def test_delete_redis_note(self, get_redis_connection):
+    def test_delete_redis_note_miss(self, get_redis_connection):
+        """Verifies add_redis_note is properly functioning"""
+        get_redis_connection.return_value = self.redis
+        redis_notes.add_redis_note(1373500800, "today: this is note 1")
+        redis_notes.add_redis_note(1450794188, "today: this is note 2")
+        redis_notes.delete_redis_note(1373500801)
+        self.assertEqual(b"today: this is note 1", self.redis.get('note_1373500800'))
+        self.assertEqual(b"today: this is note 2", self.redis.get('note_1450794188'))
+
+
+    @patch('connectors.redis_notes.get_redis_connection')
+    def test_delete_redis_note_hit(self, get_redis_connection):
         """Verifies add_redis_note is properly functioning"""
         get_redis_connection.return_value = self.redis
         redis_notes.add_redis_note(1373500800, "today: this is a simple test #yolo")
