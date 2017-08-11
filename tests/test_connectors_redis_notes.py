@@ -237,6 +237,22 @@ class LocalNotesTests(unittest.TestCase):
         self.assertListEqual(expectation, tokens)
 
 
+    @patch('connectors.redis_notes.get_redis_connection')
+    def test_get_common_words(self, get_redis_connection):
+        """Verifies get_common_words is properly functioning"""
+        get_redis_connection.return_value = self.redis
+        redis_notes.add_redis_note(1373500800, "today: this is a simple test #yolo")
+        redis_notes.add_redis_note(1450794188, "today: this is note 2")
+
+        words = redis_notes.get_common_words()
+        words.sort()
+
+        self.assertListEqual(
+            ['#yolo', '2', 'a', 'is', 'note', 'simple', 'test', 'this', 'today', 'yolo'],
+            words
+        )
+
+
     @patch('utils.configuration.load_config')
     def test_get_redis_connection(self, load_config):
         """Verifies that Redis is loaded correctly"""
