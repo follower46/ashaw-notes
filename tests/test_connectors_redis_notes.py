@@ -69,6 +69,100 @@ class LocalNotesTests(unittest.TestCase):
         get_search_request.assert_called_once_with(["test note"])
         find_redis_notes.assert_called_once()
 
+
+    @patch('connectors.redis_notes.get_redis_connection')
+    def test_add_redis_note(self, get_redis_connection):
+        """Verifies add_redis_note is properly functioning"""
+        get_redis_connection.return_value = self.redis
+        redis_notes.add_redis_note(1373500800, "today: this is a simple test #yolo")
+
+        keys = self.redis.keys()
+        keys.sort()
+
+        self.assertListEqual(
+            [
+                b'day_11',
+                b'hour_0',
+                b'month_7',
+                b'note_1373500800',
+                b'w_#yolo',
+                b'w_a',
+                b'w_is',
+                b'w_simple',
+                b'w_test',
+                b'w_this',
+                b'w_today',
+                b'w_yolo',
+                b'weekday_3',
+                b'year_2013'
+            ], keys
+        )
+
+
+    @patch('connectors.redis_notes.get_redis_connection')
+    def test_delete_redis_note(self, get_redis_connection):
+        """Verifies add_redis_note is properly functioning"""
+        get_redis_connection.return_value = self.redis
+        redis_notes.add_redis_note(1373500800, "today: this is a simple test #yolo")
+        redis_notes.add_redis_note(1450794188, "today: this is note 2")
+
+        keys = self.redis.keys()
+        keys.sort()
+
+        self.assertListEqual(
+            [
+                b'day_11',
+                b'day_22',
+                b'hour_0',
+                b'hour_14',
+                b'month_12',
+                b'month_7',
+                b'note_1373500800',
+                b'note_1450794188',
+                b'w_#yolo',
+                b'w_2',
+                b'w_a',
+                b'w_is',
+                b'w_note',
+                b'w_simple',
+                b'w_test',
+                b'w_this',
+                b'w_today',
+                b'w_yolo',
+                b'weekday_1',
+                b'weekday_3',
+                b'year_2013',
+                b'year_2015'
+            ], keys
+        )
+
+        redis_notes.delete_redis_note(1373500800)
+        keys.sort()
+
+        self.assertEqual(b"set()", self.redis.get('day_11'))
+        self.assertEqual(b"{b'1450794188'}", self.redis.get('day_22'))
+        self.assertEqual(b"set()", self.redis.get('hour_0'))
+        self.assertEqual(b"{b'1450794188'}", self.redis.get('hour_14'))
+        self.assertEqual(b"{b'1450794188'}", self.redis.get('month_12'))
+        self.assertEqual(b"set()", self.redis.get('month_7'))
+        self.assertEqual(None, self.redis.get('note_1373500800'))
+        self.assertEqual(b"today: this is note 2", self.redis.get('note_1450794188'))
+        self.assertEqual(b"set()", self.redis.get('w_#yolo'))
+        self.assertEqual(b"{b'1450794188'}", self.redis.get('w_2'))
+        self.assertEqual(b"set()", self.redis.get('w_a'))
+        self.assertEqual(b"{b'1450794188'}", self.redis.get('w_is'))
+        self.assertEqual(b"{b'1450794188'}", self.redis.get('w_note'))
+        self.assertEqual(b"set()", self.redis.get('w_simple'))
+        self.assertEqual(b"set()", self.redis.get('w_test'))
+        self.assertEqual(b"{b'1450794188'}", self.redis.get('w_this'))
+        self.assertEqual(b"{b'1450794188'}", self.redis.get('w_today'))
+        self.assertEqual(b"set()", self.redis.get('w_yolo'))
+        self.assertEqual(b"{b'1450794188'}", self.redis.get('weekday_1'))
+        self.assertEqual(b"set()", self.redis.get('weekday_3'))
+        self.assertEqual(b"set()", self.redis.get('year_2013'))
+        self.assertEqual(b"{b'1450794188'}", self.redis.get('year_2015'))
+
+
     @unpack
     @data(
         (1373500800, 'note_1373500800'),
