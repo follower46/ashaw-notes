@@ -77,6 +77,25 @@ class QuicknoteTests(unittest.TestCase):
         self.assertListEqual(['a', 'b', 'c', 'd', 'e'], call_argument)
 
 
+    def test_completer(self):
+        """Verifies Completer class is properly functioning"""
+        test = quicknote.Completer(['test', 'top', 'tent'])
+        self.assertEqual('test ', test.complete('te', 0))
+        self.assertEqual('tent ', test.complete('te', 1))
+        self.assertEqual(None, test.complete('te', 2))
+        self.assertEqual(None, test.complete('p', 2))
+
+    @patch('time.time')
+    def test_write_note(self, time):
+        """Verifies write_note is properly functioning"""
+        time.return_value = 1373500800
+        module1 = MagicMock()
+        module2 = MagicMock()
+        quicknote.write_note("testing", [module1, module2])
+        module1.save_note.assert_called_once_with(1373500800, "today: testing")
+        module2.save_note.assert_called_once_with(1373500800, "today: testing")
+
+
     @unpack
     @data(
         ('test', 'today: test'),
