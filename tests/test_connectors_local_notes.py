@@ -2,9 +2,9 @@
 """
 
 import unittest
-from ashaw_notes.connectors import local_notes
 from mock import MagicMock, mock_open, patch, call
 from ddt import ddt, data, unpack
+from ashaw_notes.connectors import local_notes
 from ashaw_notes.utils.search import get_search_request
 
 

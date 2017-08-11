@@ -40,6 +40,13 @@ def find_notes(search_terms):
     return find_redis_notes(request)
 
 
+def get_common_words():
+    """Finds all common words in Redis"""
+    redis_connection = get_redis_connection()
+    words = redis_connection.keys(get_word_key("*"))
+    return set([word[2:].decode('utf-8') for word in words])
+
+
 # Module Specific Methods
 
 __redis__ = None # reduces the number of simultaneous redis connections
@@ -111,13 +118,6 @@ def get_note_tokens(timestamp, line):
     tokens.append("hour_%s" % note_time.tm_hour)
     tokens.append("weekday_%s" % note_time.tm_wday)
     return tokens
-
-
-def get_common_words():
-    """Finds all common words in Redis"""
-    redis_connection = get_redis_connection()
-    words = redis_connection.keys(get_word_key("*"))
-    return [word[2:].decode('utf-8') for word in words]
 
 
 def find_redis_notes(search_request):

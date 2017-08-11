@@ -42,6 +42,12 @@ def find_notes(search_terms):
     return find_local_notes(request)
 
 
+def get_common_words():
+    """Finds all common words in note file"""
+    # not yet implemented
+    return set()
+
+
 # Module Specific Methods
 
 __line_regex__ = re.compile(r'\[([^\]]+)\] (.*)')

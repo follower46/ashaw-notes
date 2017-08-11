@@ -3,9 +3,9 @@
 
 import unittest
 import fakeredis
-from ashaw_notes.connectors import redis_notes
 from mock import MagicMock, patch, call
 from ddt import ddt, data, unpack
+from ashaw_notes.connectors import redis_notes
 from ashaw_notes.utils.search import get_search_request
 
 
@@ -256,7 +256,7 @@ class LocalNotesTests(unittest.TestCase):
         redis_notes.add_redis_note(1373500800, "today: this is a simple test #yolo")
         redis_notes.add_redis_note(1450794188, "today: this is note 2")
 
-        words = redis_notes.get_common_words()
+        words = list(redis_notes.get_common_words())
         words.sort()
 
         self.assertListEqual(
