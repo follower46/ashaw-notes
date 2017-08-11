@@ -121,6 +121,7 @@ def get_common_words():
 
 
 def find_redis_notes(search_request):
+    """Finds all notes related to the request"""
     redis_connection = get_redis_connection()
     timestamps = set([])
 

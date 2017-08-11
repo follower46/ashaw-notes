@@ -6,6 +6,7 @@ import fakeredis
 from connectors import redis_notes
 from mock import MagicMock, patch, call
 from ddt import ddt, data, unpack
+from utils.search import get_search_request
 
 
 @ddt
@@ -251,6 +252,34 @@ class LocalNotesTests(unittest.TestCase):
             ['#yolo', '2', 'a', 'is', 'note', 'simple', 'test', 'this', 'today', 'yolo'],
             words
         )
+
+
+    @patch('connectors.redis_notes.get_redis_connection')
+    def test_find_redis_notes(self, get_redis_connection):
+        """Verifies get_common_words is properly functioning"""
+        get_redis_connection.return_value = self.redis
+        redis_notes.add_redis_note(1373500800, "today: this is a simple test #yolo")
+        redis_notes.add_redis_note(1450794188, "today: this is note 2")
+
+        first_note = [
+            (1373500800, 'today: this is a simple test #yolo')
+        ]
+        second_note = [
+            (1450794188, 'today: this is note 2')
+        ]
+        both_notes = [
+            (1373500800, 'today: this is a simple test #yolo'),
+            (1450794188, 'today: this is note 2')
+        ]
+
+        request = get_search_request(['simple'])
+        self.assertListEqual(first_note, redis_notes.find_redis_notes(request))
+
+        request = get_search_request(['today'])
+        self.assertListEqual(both_notes, redis_notes.find_redis_notes(request))
+
+        request = get_search_request(['today', '!yolo'])
+        self.assertListEqual(second_note, redis_notes.find_redis_notes(request))
 
 
     @patch('utils.configuration.load_config')
