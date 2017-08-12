@@ -9,6 +9,7 @@ import readline
 import sys
 import os
 
+from ashaw_notes.utils.connection_manager import ConnectionManager
 from ashaw_notes.utils.plugin_manager import PluginManager
 
 
@@ -30,8 +31,7 @@ def add_parent_modules(sys_args):
 
 def import_connectors():
     """Dynamic imports"""
-    import ashaw_notes.utils.configuration
-    return ashaw_notes.utils.configuration.get_connection_modules()
+    return ConnectionManager().load_connectors()
 
 
 def setup_auto_complete(modules):

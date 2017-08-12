@@ -4,6 +4,7 @@
 import unittest
 from mock import MagicMock, patch, call
 from ddt import ddt, data, unpack
+from ashaw_notes.utils.connection_manager import ConnectionManager
 from ashaw_notes.scripts import quicknote
 
 
@@ -47,10 +48,10 @@ class QuicknoteTests(unittest.TestCase):
         sys_path.append.assert_called_once_with('/home/user/github_clone')
 
 
-    @patch('ashaw_notes.utils.configuration.get_connection_modules')
-    def test_import_connectors(self, get_connection_modules):
+    @patch.object(ConnectionManager, 'load_connectors')
+    def test_import_connectors(self, load_connectors):
         """Verifies import_connectors is properly functioning"""
-        get_connection_modules.return_value = [1, 2, 3]
+        load_connectors.return_value = [1, 2, 3]
         self.assertListEqual(
             [1, 2, 3],
             quicknote.import_connectors()

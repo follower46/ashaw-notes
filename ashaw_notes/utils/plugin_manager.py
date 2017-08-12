@@ -4,20 +4,28 @@ import importlib
 import ashaw_notes.utils.configuration
 
 class PluginManager:
-    """Plugin Class"""
+    """Plugin Manager Class"""
     plugins = None
 
     def __init__(self):
-        self.load_plugins()
+        if not self.plugins:
+            self.load_plugins()
 
 
     def load_plugins(self):
         """Returns all enabled plugins"""
         self.plugins = []
-        plugin_names = ashaw_notes.utils.configuration.load_config().get('base_config', 'plugins')
+        config = ashaw_notes.utils.configuration.load_config()
+        plugin_names = config.get('base_config', 'plugins')
         for plugin_name in [name.strip() for name in plugin_names.split(',')]:
             module = importlib.import_module("ashaw_notes.plugins.%s" % plugin_name)
             self.plugins.append(module.Plugin())
+        return self.get_plugins()
+
+
+    def get_plugins(self):
+        """Simple getter"""
+        return self.plugins
 
 
     def bypass_today(self, note):
