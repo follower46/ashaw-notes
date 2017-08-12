@@ -10,7 +10,7 @@ class Plugin(base_plugin.Plugin):
 
     def is_plugin_note(self, note):
         """Verifies note relates to plugin"""
-        return self.regex.match(note)
+        return bool(self.regex.match(note))
 
 
     def process_input(self, note):
