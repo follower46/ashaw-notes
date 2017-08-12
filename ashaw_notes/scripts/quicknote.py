@@ -1,14 +1,24 @@
 #!/usr/bin/python3
+""" QuickNote Script
+    Data input script for adding new notes
+"""
 
 import re
 import time
 import readline
-import importlib
 import sys
 import os
 
 
 __regex__ = re.compile(r'^todo(ne\[[0-9]*\])?:|^(s)?lunch$|^cal:')
+
+
+def run_quicknote(sys_args):
+    """Main quicknote method"""
+    add_parent_modules(sys_args)
+    modules = import_connectors()
+    setup_auto_complete(modules)
+    write_note(take_note(), modules)
 
 
 def add_parent_modules(sys_args):
@@ -21,12 +31,7 @@ def add_parent_modules(sys_args):
 def import_connectors():
     """Dynamic imports"""
     import ashaw_notes.utils.configuration
-
-    modules = []
-    module_names = ashaw_notes.utils.configuration.load_config().get('base_config', 'data_backends')
-    for module_name in [name.strip() for name in module_names.split(',')]:
-        modules.append(importlib.import_module("ashaw_notes.connectors.%s" % module_name))
-    return modules
+    return ashaw_notes.utils.configuration.get_connection_modules()
 
 
 def setup_auto_complete(modules):
@@ -47,6 +52,11 @@ def write_note(note, modules):
 
     for module in modules:
         module.save_note(timestamp, note)
+
+
+def take_note():
+    """Gets note from user"""
+    return input("note: ")
 
 
 def process_note(note):
@@ -76,7 +86,4 @@ class Completer:
 
 
 if __name__ == '__main__':
-    add_parent_modules(sys.argv[0])
-    imported_modules = import_connectors()
-    setup_auto_complete(imported_modules)
-    write_note(input("note: "), imported_modules)
+    run_quicknote(sys.argv[0])

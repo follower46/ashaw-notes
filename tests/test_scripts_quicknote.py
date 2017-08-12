@@ -11,6 +11,28 @@ from ashaw_notes.scripts import quicknote
 class QuicknoteTests(unittest.TestCase):
     """Unit Testing Quicknote"""
 
+    @patch('ashaw_notes.scripts.quicknote.write_note')
+    @patch('ashaw_notes.scripts.quicknote.take_note')
+    @patch('ashaw_notes.scripts.quicknote.setup_auto_complete')
+    @patch('ashaw_notes.scripts.quicknote.import_connectors')
+    @patch('ashaw_notes.scripts.quicknote.add_parent_modules')
+    def test_run_quicknote(self,
+                           add_parent_modules,
+                           import_connectors,
+                           setup_auto_complete,
+                           take_note,
+                           write_note):
+        """Verifies run_quicknote is properly functioning"""
+        import_connectors.return_value = [1, 2, 3]
+        take_note.return_value = "testing"
+        quicknote.run_quicknote('ashaw_notes/scripts/quicknote.py')
+        add_parent_modules.assert_called_once_with('ashaw_notes/scripts/quicknote.py')
+        import_connectors.assert_called_once()
+        setup_auto_complete.assert_called_once_with([1, 2, 3])
+        take_note.assert_called_once()
+        write_note.assert_called_once_with("testing", [1, 2, 3])
+
+
     @patch('sys.path')
     @patch('os.path')
     def test_add_parent_modules(self, os_path, sys_path):
@@ -23,40 +45,6 @@ class QuicknoteTests(unittest.TestCase):
         ]
         quicknote.add_parent_modules('ashaw_notes/scripts/quicknote.py')
         sys_path.append.assert_called_once_with('/home/user/github_clone')
-
-
-    @patch('ashaw_notes.utils.configuration.load_config')
-    def test_import_connectors_single(self, load_config):
-        """Verifies process_note is properly functioning"""
-        mock_config = MagicMock()
-        mock_config.get.return_value = 'local_notes'
-        load_config.return_value = mock_config
-        connectors = quicknote.import_connectors()
-
-        self.assertEqual(1, len(connectors))
-        self.assertEqual(
-            'ashaw_notes.connectors.local_notes',
-            connectors[0].__name__
-        )
-
-
-    @patch('ashaw_notes.utils.configuration.load_config')
-    def test_import_connectors_multiple(self, load_config):
-        """Verifies process_note is properly functioning"""
-        mock_config = MagicMock()
-        mock_config.get.return_value = 'redis_notes, local_notes'
-        load_config.return_value = mock_config
-        connectors = quicknote.import_connectors()
-
-        self.assertEqual(2, len(connectors))
-        self.assertEqual(
-            'ashaw_notes.connectors.redis_notes',
-            connectors[0].__name__
-        )
-        self.assertEqual(
-            'ashaw_notes.connectors.local_notes',
-            connectors[1].__name__
-        )
 
 
     @patch('readline.parse_and_bind')
