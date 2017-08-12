@@ -9,8 +9,7 @@ import readline
 import sys
 import os
 
-
-__regex__ = re.compile(r'^todo(ne\[[0-9]*\])?:|^(s)?lunch$|^cal:')
+from ashaw_notes.utils.plugin_manager import PluginManager
 
 
 def run_quicknote(sys_args):
@@ -62,7 +61,7 @@ def take_note():
 
 def process_note(note):
     """Builds out note"""
-    if __regex__.match(note):
+    if PluginManager().bypass_today(note):
         return note
     return "today: " + note
 

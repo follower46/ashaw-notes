@@ -100,7 +100,6 @@ class QuicknoteTests(unittest.TestCase):
         ('lunch', 'lunch'),
         ('todo: fix unit tests', 'todo: fix unit tests'),
         ('todone[0]: watched', 'todone[0]: watched'),
-        ('cal: 200', 'cal: 200'),
     )
     def test_process_note(self, note, expectation):
         """Verifies process_note is properly functioning"""
