@@ -63,6 +63,13 @@ class LocalNotesTests(unittest.TestCase):
         find_local_notes.assert_called_once()
 
 
+    def test_get_common_words(self):
+        """Verifies get_common_words is properly functioning"""
+        self.assertEqual(
+            set(),
+            local_notes.get_common_words())
+
+
     @patch('ashaw_notes.connectors.local_notes.write_line')
     @patch('ashaw_notes.connectors.local_notes.write_header')
     @patch('ashaw_notes.connectors.local_notes.is_header_found')
