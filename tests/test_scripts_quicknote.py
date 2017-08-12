@@ -47,6 +47,16 @@ class QuicknoteTests(unittest.TestCase):
         sys_path.append.assert_called_once_with('/home/user/github_clone')
 
 
+    @patch('ashaw_notes.utils.configuration.get_connection_modules')
+    def test_import_connectors(self, get_connection_modules):
+        """Verifies import_connectors is properly functioning"""
+        get_connection_modules.return_value = [1, 2, 3]
+        self.assertListEqual(
+            [1, 2, 3],
+            quicknote.import_connectors()
+        )
+
+
     @patch('readline.parse_and_bind')
     @patch('ashaw_notes.scripts.quicknote.Completer')
     def test_setup_auto_complete(self, completer, parse_and_bind):

@@ -28,6 +28,7 @@ def add_parent_modules(sys_args):
     parent_parent_path = os.path.dirname(parent_path)
     sys.path.append(parent_parent_path)
 
+
 def import_connectors():
     """Dynamic imports"""
     import ashaw_notes.utils.configuration
