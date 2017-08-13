@@ -15,18 +15,18 @@ def add_parent_modules(sys_args):
     sys.path.append(parent_parent_path)
 
 
-def run_migrations():
+def run_migrations(sys_argv):
     """Main script method"""
     from ashaw_notes.utils.connection_manager import ConnectionManager
-    if len(sys.argv) < 2:
+    if len(sys_argv) < 2:
         print("Source Connector Module is required")
         return
-    source = ConnectionManager().load_connector(sys.argv[1])
+    source = ConnectionManager().load_connector(sys_argv[1])
 
-    if len(sys.argv) < 3:
+    if len(sys_argv) < 3:
         print("Target Connector Module is required")
         return
-    target = ConnectionManager().load_connector(sys.argv[2])
+    target = ConnectionManager().load_connector(sys_argv[2])
 
     migrate_notes(source, target)
 
@@ -42,4 +42,4 @@ def migrate_notes(source, target):
 
 if __name__ == '__main__':
     add_parent_modules(sys.argv[0])
-    run_migrations()
+    run_migrations(sys.argv)
