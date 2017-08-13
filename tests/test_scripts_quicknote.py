@@ -1,4 +1,4 @@
-""" Testing Search Module
+""" Testing Quicknote Module
 """
 
 import unittest
