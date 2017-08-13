@@ -298,6 +298,9 @@ class LocalNotesTests(unittest.TestCase):
         request = get_search_request()
         self.assertListEqual(both_notes, redis_notes.find_redis_notes(request))
 
+        request = get_search_request(['missing'])
+        self.assertListEqual([(None, None)], redis_notes.find_redis_notes(request))
+
 
     @patch('ashaw_notes.utils.configuration.load_config')
     def test_get_redis_connection(self, load_config):

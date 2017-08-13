@@ -155,6 +155,9 @@ def find_redis_notes(search_request):
     timestamps = [int(timestamp.decode('utf-8')) for timestamp in timestamps]
     timestamps.sort()
 
+    if not timestamps:
+        return [(None, None)]
+
     notes = redis_connection.mget([get_note_key(timestamp) for timestamp in timestamps])
     notes = [note.decode('utf-8') for note in notes]
     return list(zip(timestamps, notes))
