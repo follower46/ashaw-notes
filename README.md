@@ -63,12 +63,23 @@ After pressing "Enter" your note will be saved and the command will terminate.
 ## Migrating Notes
 
 If you're wanting to sample multiple backends (or if you have a local notes file you'd like to import into Redis) you can use the ```migration.py``` located in the scripts directory.
-Simply execute the script with the modules you want to use as parameters. For example, ```$ ./ashaw_notes/scripts/migration.py local_notes redis_notes``` will migrate the notes in your local system file to redis while ```$ ./ashaw_notes/scripts/migration.py redis_notes local_notes``` will migrate all the notes stored on an external redis server to your local machine.
+Simply execute the script with the modules you want to use as parameters. For example, 
+```
+$ ./ashaw_notes/scripts/migration.py local_notes redis_notes
+``` 
+will migrate the notes in your local system file to redis while 
+```
+$ ./ashaw_notes/scripts/migration.py redis_notes local_notes
+``` 
+will migrate all the notes stored on an external redis server to your local machine.
 
 ## Running the notes GUI client
 
 ashaw notes is a two-staged application. ```quicknotes.py``` allows for data entry and the QT GUI lets the user view and filter notes stored.
 
-To run the GUI client, you must first have QT installed on your local system. Once the prerequisites are met you can run the GUI by executing ```python3 ashaw_notes/gui/main.py```.
+To run the GUI client, you must first have QT installed on your local system. Once the prerequisites are met you can run the GUI by executing 
+```
+python3 ashaw_notes/gui/main.py
+```
 
 A UI will popup with a basic notes interface and a filter box at the bottom of the window. Typing in this filter box will allow you to quickly search your notes.
