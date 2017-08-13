@@ -75,15 +75,18 @@ class LocalNotesTests(unittest.TestCase):
     @patch('ashaw_notes.connectors.local_notes.is_header_found')
     @patch('ashaw_notes.connectors.local_notes.get_notes_file_location')
     @patch('builtins.open')
+    @patch('os.path.isfile')
     @patch('ashaw_notes.connectors.local_notes.backup_notes')
     def test_add_local_note(self,
                             backup_notes,
+                            isfile,
                             mopen,
                             get_notes_file_location,
                             is_header_found,
                             write_header,
                             write_line):
         """Verifies add_local_note is properly functioning"""
+        isfile.return_value = True
         get_notes_file_location.return_value = '/home/user/notes'
         is_header_found.return_value = True
         read_file = MagicMock()
@@ -104,15 +107,18 @@ class LocalNotesTests(unittest.TestCase):
     @patch('ashaw_notes.connectors.local_notes.is_header_found')
     @patch('ashaw_notes.connectors.local_notes.get_notes_file_location')
     @patch('builtins.open')
+    @patch('os.path.isfile')
     @patch('ashaw_notes.connectors.local_notes.backup_notes')
     def test_add_local_note_with_header(self,
                                         backup_notes,
+                            isfile,
                                         mopen,
                                         get_notes_file_location,
                                         is_header_found,
                                         write_header,
                                         write_line):
         """Verifies add_local_note is properly functioning"""
+        isfile.return_value = True
         get_notes_file_location.return_value = '/home/user/notes'
         is_header_found.return_value = False
         read_file = MagicMock()
@@ -222,11 +228,13 @@ class LocalNotesTests(unittest.TestCase):
 
 
     @patch('shutil.copyfile')
+    @patch('os.path.isfile')
     @patch('ashaw_notes.connectors.local_notes.use_backup')
     @patch('ashaw_notes.connectors.local_notes.get_notes_file_location')
-    def test_backup_notes_enabled(self, get_notes_file_location, use_backup, copyfile):
+    def test_backup_notes_enabled(self, get_notes_file_location, use_backup, isfile, copyfile):
         """Verifies backup_notes is properly functioning"""
         use_backup.return_value = True
+        isfile.return_value = True
         get_notes_file_location.return_value = '/home/user/note'
         local_notes.backup_notes()
 
