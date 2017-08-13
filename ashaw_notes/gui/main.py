@@ -41,6 +41,7 @@ class App(QMainWindow):
         filter_txt.textChanged.connect(self.filter_notes)
         self.filter_txt = filter_txt
 
+        self.filter_notes()
         self.show()
 
 
@@ -58,7 +59,11 @@ class App(QMainWindow):
         print(self.filter_txt.toPlainText())
         self.notes_txt.setText('')
         connector = self.connection_manager.get_primary_connector()
-        terms = [term.strip() for term in self.filter_txt.toPlainText().split(' ')]
+        text = self.filter_txt.toPlainText()
+        if text != "":
+            terms = [term.strip() for term in text.split(' ')]
+        else:
+            terms = []
         notes = connector.find_notes(terms)
         for timestamp, note in notes:
             self.notes_txt.insertPlainText("%s\n" % note)
