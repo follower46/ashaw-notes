@@ -4,6 +4,7 @@
 """
 import re
 import time
+import os
 from datetime import datetime
 import shutil
 import ashaw_notes.utils.search
@@ -55,7 +56,10 @@ __line_regex__ = re.compile(r'\[([^\]]+)\] (.*)')
 def add_local_note(timestamp, note):
     """Inserts note into local file"""
     backup_notes()
-    reading_file = open(get_notes_file_location(), "r+", encoding="utf8")
+    if os.path.isfile(get_notes_file_location()):
+        reading_file = open(get_notes_file_location(), "r+", encoding="utf8")
+    else:
+        reading_file = None
     writing_file = open(get_notes_file_location(), "a+", encoding="utf8")
     if not is_header_found(reading_file, timestamp):
         write_header(writing_file, get_date_header(timestamp))
@@ -123,8 +127,9 @@ def backup_notes():
     """Creates a local backup of the notes file"""
     if not use_backup():
         return
-    shutil.copyfile(get_notes_file_location(), 
-             "%s.bak" % get_notes_file_location())
+    if os.path.isfile(get_notes_file_location()):
+        shutil.copyfile(get_notes_file_location(),
+                        "%s.bak" % get_notes_file_location())
 
 
 def restore_from_backup():
@@ -132,12 +137,15 @@ def restore_from_backup():
     if not use_backup():
         return
     destination = get_notes_file_location()
-    shutil.copyfile("%s.bak" % get_notes_file_location(), 
-             get_notes_file_location())
+    shutil.copyfile("%s.bak" % get_notes_file_location(),
+                    get_notes_file_location())
 
 
 def is_header_found(file, timestamp):
     """Checks for header in file"""
+    if not file:
+        return False
+
     header = get_date_header(timestamp)
     for line in file:
         if header in line:

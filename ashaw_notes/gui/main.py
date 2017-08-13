@@ -58,7 +58,8 @@ class App(QMainWindow):
         print(self.filter_txt.toPlainText())
         self.notes_txt.setText('')
         connector = self.connection_manager.get_primary_connector()
-        notes = connector.find_notes(self.filter_txt.toPlainText())
+        terms = [term.strip() for term in self.filter_txt.toPlainText().split(' ')]
+        notes = connector.find_notes(terms)
         for timestamp, note in notes:
             self.notes_txt.insertPlainText("%s\n" % note)
 
