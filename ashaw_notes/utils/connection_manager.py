@@ -19,11 +19,15 @@ class ConnectionManager:
         module_names = config.get('base_config', 'data_backends')
         for module_name in [name.strip() for name in module_names.split(',')]:
             self.connectors.append(
-                importlib.import_module(
-                    "ashaw_notes.connectors.%s" % module_name
-                )
+                self.load_connector(module_name)
             )
         return self.connectors
+
+
+    def load_connector(self, connector_class_name):
+        return importlib.import_module(
+            "ashaw_notes.connectors.%s" % connector_class_name
+        )
 
 
     def get_primary_connector(self):

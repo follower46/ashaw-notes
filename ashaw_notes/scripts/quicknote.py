@@ -3,7 +3,6 @@
     Data input script for adding new notes
 """
 
-import re
 import time
 import readline
 import sys
