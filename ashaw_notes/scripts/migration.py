@@ -33,10 +33,11 @@ def run_migrations(sys_argv):
 
 def migrate_notes(source, target):
     """Migrations notes from source connector to target connector"""
+    from ashaw_notes.utils.search import timestamp_to_datestring
     notes = source.find_notes([])
     count = 1
     for timestamp, note in notes:
-        print("%s/%s - %s %s" % (count, len(notes), timestamp, note))
+        print("%s/%s - [%s] %s" % (count, len(notes), timestamp_to_datestring(timestamp), note))
         target.save_note(timestamp, note)
         count += 1
 
