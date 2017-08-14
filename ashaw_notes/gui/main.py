@@ -22,6 +22,10 @@ class App(QMainWindow):
 
         from ashaw_notes.utils.connection_manager import ConnectionManager
         self.connection_manager = ConnectionManager()
+
+        from ashaw_notes.utils.configuration import get_logger
+        self.logger = get_logger()
+
         self.init_interface()
 
 
@@ -42,7 +46,9 @@ class App(QMainWindow):
         self.filter_txt = filter_txt
 
         self.filter_notes()
+        self.logger.debug("[Window] Drawing Window")
         self.show()
+        self.logger.debug("[Window] Window Drawn")
 
 
     def add_parent_modules(self, sys_args):
@@ -55,8 +61,8 @@ class App(QMainWindow):
 
     def filter_notes(self):
         """Displays filtered down notes"""
-        print("Filtering...")
-        print(self.filter_txt.toPlainText())
+        self.logger.debug("[Filter] Filtering Down Notes")
+        self.logger.info("[Filter] Filter Term: %s", self.filter_txt.toPlainText())
         self.notes_txt.setText('')
         connector = self.connection_manager.get_primary_connector()
         text = self.filter_txt.toPlainText()
@@ -67,6 +73,7 @@ class App(QMainWindow):
         notes = connector.find_notes(terms)
         for timestamp, note in notes:
             self.notes_txt.insertPlainText("%s\n" % note)
+        self.logger.debug("[Filter] Notes Filtered")
 
 
     def resizeEvent(self, event):

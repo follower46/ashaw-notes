@@ -10,6 +10,7 @@ import ashaw_notes.utils.configuration
 
 
 CONFIG_SECTION = 'redis_notes'
+logger = ashaw_notes.utils.configuration.get_logger()
 
 
 def is_enabled():
@@ -52,38 +53,40 @@ def get_common_words():
 __redis__ = None # reduces the number of simultaneous redis connections
 
 def add_redis_note(timestamp, note):
-    redis = get_redis_connection()
+    """Adds a note to redis"""
+    redis_connection = get_redis_connection()
     tokens = get_note_tokens(timestamp, note)
 
-    print("    Adding %s tokens" % len(tokens))
+    logger.debug("Adding %s tokens" % len(tokens))
 
     # Add search indices
     for token in tokens:
-        redis.sadd(token, timestamp)
+        redis_connection.sadd(token, timestamp)
 
     # Add notes
-    print("    Adding %s note" % timestamp)
-    redis.set(get_note_key(timestamp), note)
+    logger.debug("Adding %s note" % timestamp)
+    redis_connection.set(get_note_key(timestamp), note)
 
 
 def delete_redis_note(timestamp):
-    redis = get_redis_connection()
+    """Removes a note from redis"""
+    redis_connection = get_redis_connection()
 
-    if not redis.exists(get_note_key(timestamp)):
+    if not redis_connection.exists(get_note_key(timestamp)):
         return
 
-    line = redis.get(get_note_key(timestamp)).decode('utf-8')
+    line = redis_connection.get(get_note_key(timestamp)).decode('utf-8')
     tokens = get_note_tokens(timestamp, line)
 
-    print("Deleting %s" % timestamp)
-    print("    Deleting %s tokens" % len(tokens))
-    # Add search indices
+    logger.debug("Deleting %s" % timestamp)
+    logger.debug("Deleting %s tokens" % len(tokens))
+    # Remove search indices
     for token in tokens:
-        redis.srem(token, timestamp)
+        redis_connection.srem(token, timestamp)
 
-    # Add notes
-    print("    Deleting %s note" % timestamp)
-    redis.delete(get_note_key(timestamp))
+    # Remove notes
+    logger.debug("Deleting %s note" % timestamp)
+    redis_connection.delete(get_note_key(timestamp))
 
 
 def get_note_key(timestamp):

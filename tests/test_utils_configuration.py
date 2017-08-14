@@ -3,7 +3,8 @@
 
 import unittest
 import configparser
-from mock import MagicMock, patch
+import logzero
+from mock import MagicMock, patch, call
 from ashaw_notes.utils import configuration
 
 
@@ -37,7 +38,7 @@ class ConfigurationTests(unittest.TestCase):
     def test_get_notes_file_location(self, isfile):
         """Validates local config wins if found"""
         isfile.return_value = True
-        self.assertEqual(configuration.get_notes_file_location(), 'notes-local.config')
+        self.assertEqual(configuration.get_config_location(), 'notes-local.config')
 
 
     @patch('os.path.isfile')
@@ -45,6 +46,32 @@ class ConfigurationTests(unittest.TestCase):
         """Checks for proper exception handling"""
         isfile.return_value = False
         with self.assertRaises(Exception) as context:
-            configuration.get_notes_file_location()
+            configuration.get_config_location()
             self.assertTrue('Config not found. Please verify configuration deployment'
                             in context.exception)
+
+
+    @patch.object(logzero, 'logfile')
+    @patch('ashaw_notes.utils.configuration.load_config')
+    def test_get_logger(self, load_config, logfile):
+        """Verifies get_logger is properly functioning"""
+        config = MagicMock()
+        config.get.side_effect = [
+            '/tmp/mylogs.log',
+            '1e7',
+            '5',
+        ]
+        load_config.return_value = config
+        logger = configuration.get_logger()
+        load_config.assert_called_once()
+        config.get.assert_has_calls([
+            call('logging', 'location'),
+            call('logging', 'max_bytes'),
+            call('logging', 'backup_count'),
+        ])
+        logfile.assert_called_once_with(
+            '/tmp/mylogs.log',
+            maxBytes=1e7,
+            backupCount=5,
+        )
+        self.assertEqual("<class 'logging.Logger'>", str(logger.__class__))
