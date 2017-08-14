@@ -8,7 +8,9 @@ install:
   - pip install nose
   - pip install coverage
   - pip install coveralls
+  - pip install --user codecov
 script:
   - nosetests -v --with-coverage --cover-erase --cover-package=ashaw_notes
 after_success:
   - coveralls
+  - codecov
