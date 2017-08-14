@@ -3,6 +3,7 @@
 
 import unittest
 import fakeredis
+import logging
 from mock import MagicMock, patch, call
 from ddt import ddt, data, unpack
 from ashaw_notes.connectors import redis_notes
@@ -14,8 +15,9 @@ class LocalNotesTests(unittest.TestCase):
     """Unit Testing Local Notes"""
 
     def setUp(self):
-        """Setup fake redis for testing."""
+        """Setup for testing."""
         self.redis = fakeredis.FakeStrictRedis()
+        logging.disable(logging.CRITICAL)
 
 
     def tearDown(self):

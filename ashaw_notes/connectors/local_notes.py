@@ -179,5 +179,4 @@ def parse_note_line(notes_line):
 
 def write_line(file, line):
     """Writes line to file"""
-    print(line)
     file.write("%s\n" % line)
