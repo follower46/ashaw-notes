@@ -1,8 +1,7 @@
 ## Description
 
 [![Build Status](https://travis-ci.org/follower46/ashaw-notes.svg?branch=master)](https://travis-ci.org/follower46/ashaw-notes)
-[![Coverage Status](https://coveralls.io/repos/github/follower46/ashaw-notes/badge.svg?branch=master)](https://coveralls.io/github/follower46/ashaw-notes?branch=master)
-[![Coverage Status](https://codecov.io/github/follower46/ashaw-notes/badge.svg?branch=master)](https://codecov.io/github/follower46/ashaw-notes?branch=master)
+[![codecov](https://codecov.io/gh/follower46/ashaw-notes/branch/master/graph/badge.svg)](https://codecov.io/gh/follower46/ashaw-notes)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 ashaw-notes was created to allow for quick and easy note taking and retrieval of information and personal context.
