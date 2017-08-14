@@ -77,6 +77,37 @@ class LocalNotesTests(unittest.TestCase):
     @patch('builtins.open')
     @patch('os.path.isfile')
     @patch('ashaw_notes.connectors.local_notes.backup_notes')
+    def test_first_add_local_note(self,
+                                  backup_notes,
+                                  isfile,
+                                  mopen,
+                                  get_notes_file_location,
+                                  is_header_found,
+                                  write_header,
+                                  write_line):
+        """Verifies add_local_note is properly functioning when no notes file is present"""
+        isfile.return_value = False
+        get_notes_file_location.return_value = '/home/user/notes'
+        is_header_found.return_value = True
+        write_file = MagicMock()
+        mopen.side_effect = [write_file]
+
+        local_notes.add_local_note(1373500800, "testing")
+
+        mopen.assert_called_once_with('/home/user/notes', "a+", encoding="utf8")
+        backup_notes.assert_called_once()
+        write_header.assert_not_called()
+        write_line.assert_called_once_with(write_file, '[Thu Jul 11 00:00:00 2013] testing')
+        write_file.close.assert_called_once()
+
+
+    @patch('ashaw_notes.connectors.local_notes.write_line')
+    @patch('ashaw_notes.connectors.local_notes.write_header')
+    @patch('ashaw_notes.connectors.local_notes.is_header_found')
+    @patch('ashaw_notes.connectors.local_notes.get_notes_file_location')
+    @patch('builtins.open')
+    @patch('os.path.isfile')
+    @patch('ashaw_notes.connectors.local_notes.backup_notes')
     def test_add_local_note(self,
                             backup_notes,
                             isfile,
