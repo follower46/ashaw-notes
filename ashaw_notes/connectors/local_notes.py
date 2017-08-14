@@ -64,7 +64,8 @@ def add_local_note(timestamp, note):
     if not is_header_found(reading_file, timestamp):
         write_header(writing_file, get_date_header(timestamp))
     write_line(writing_file, build_note_line(timestamp, note))
-    reading_file.close()
+    if reading_file:
+        reading_file.close()
     writing_file.close()
 
 
