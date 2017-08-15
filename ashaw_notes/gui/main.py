@@ -21,11 +21,12 @@ class App(QMainWindow):
         self.add_parent_modules(sys.argv[0])
 
         from ashaw_notes.utils.connection_manager import ConnectionManager
-        self.connection_manager = ConnectionManager()
-
         from ashaw_notes.utils.configuration import get_logger
-        self.logger = get_logger()
+        from ashaw_notes.utils.search import timestamp_to_datestring
 
+        self.connection_manager = ConnectionManager()
+        self.logger = get_logger()
+        self.timestamp = timestamp_to_datestring
         self.init_interface()
 
 
@@ -41,6 +42,7 @@ class App(QMainWindow):
 
         filter_txt = QTextEdit(self)
         filter_txt.setReadOnly(False)
+        filter_txt.setText('today')
         filter_txt.setFocus()
         filter_txt.textChanged.connect(self.filter_notes)
         self.filter_txt = filter_txt
@@ -72,7 +74,7 @@ class App(QMainWindow):
             terms = []
         notes = connector.find_notes(terms)
         for timestamp, note in notes:
-            self.notes_txt.insertPlainText("%s\n" % note)
+            self.notes_txt.insertPlainText("[%s] %s\n" % (self.timestamp(timestamp), note))
         self.logger.debug("[Filter] Notes Filtered")
 
 

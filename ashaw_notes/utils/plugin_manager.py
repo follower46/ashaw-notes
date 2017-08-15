@@ -35,3 +35,10 @@ class PluginManager:
                 if plugin.is_plugin_note(note):
                     return True
         return False
+
+
+    def process_search_request(self, search_request):
+        """Allows enabled plugins to modify search request"""
+        for plugin in self.plugins:
+            plugin.process_search_request(search_request)
+        return search_request
