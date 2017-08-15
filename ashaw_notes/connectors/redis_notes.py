@@ -90,13 +90,25 @@ def delete_redis_note(timestamp):
 
 
 def get_note_key(timestamp):
-    """Generates redis keyname for timestamp"""
+    """Generates redis keyname for note"""
     return "note_%s" % timestamp
 
 
 def get_word_key(word):
     """Generates redis keyname for word"""
     return "w_%s" % word.lower()
+
+
+def get_date_keys(timestamp):
+    """Generates redis keysnames for timestamp"""
+    note_time = time.gmtime(timestamp)
+    return [
+        "year_%s" % note_time.tm_year,
+        "month_%s" % note_time.tm_mon,
+        "day_%s" % note_time.tm_mday,
+        "hour_%s" % note_time.tm_hour,
+        "weekday_%s" % note_time.tm_wday,
+    ]
 
 
 def get_note_tokens(timestamp, line):
@@ -114,12 +126,7 @@ def get_note_tokens(timestamp, line):
         if token not in tokens:
             tokens.append(get_word_key(part.lower()))
 
-    note_time = time.gmtime(timestamp)
-    tokens.append("year_%s" % note_time.tm_year)
-    tokens.append("month_%s" % note_time.tm_mon)
-    tokens.append("day_%s" % note_time.tm_mday)
-    tokens.append("hour_%s" % note_time.tm_hour)
-    tokens.append("weekday_%s" % note_time.tm_wday)
+    tokens += get_date_keys(timestamp)
     return tokens
 
 
@@ -128,32 +135,38 @@ def find_redis_notes(search_request):
     redis_connection = get_redis_connection()
     timestamps = set([])
 
+    required_keys = []
+    excluded_keys = []
+
     if search_request.inclusion_terms:
-        timestamps = redis_connection.sinter(
-            [get_word_key(term)
-             for term in search_request.inclusion_terms]
+        required_keys += [get_word_key(term)
+                          for term in search_request.inclusion_terms]
+    if search_request.exclusion_terms:
+        excluded_keys += [get_word_key(term)
+                          for term in search_request.exclusion_terms]
+
+    if search_request.date:
+        date_keys = get_date_keys(
+            search_request.date.timestamp()
         )
-        if search_request.exclusion_terms:
-            timestamps = timestamps.difference(
-                redis_connection.sunion(
-                    [get_word_key(term)
-                     for term in search_request.exclusion_terms]
-                )
-            )
-    elif search_request.exclusion_terms:
+        required_keys += [
+            date_keys[0], # year
+            date_keys[1], # month
+            date_keys[2], # day
+        ]
+
+    if required_keys:
+        # filter against required note keys
+        timestamps = redis_connection.sinter(required_keys)
+    else:
+        # filter against all notes if none are required
         timestamps = set(
             [key[len(get_note_key('')):]
              for key in set(redis_connection.keys(get_note_key("*")))]
         )
-        exclusion_timestamps = redis_connection.sunion(
-            [get_word_key(term)
-             for term in search_request.exclusion_terms]
-        )
 
-        timestamps = timestamps.difference(exclusion_timestamps)
-    else:
-        timestamps = [key[len(get_note_key('')):]
-                      for key in set(redis_connection.keys(get_note_key("*")))]
+    if timestamps and excluded_keys:
+        timestamps = timestamps.difference(redis_connection.sunion(excluded_keys))
 
     timestamps = [int(timestamp.decode('utf-8')) for timestamp in timestamps]
     timestamps.sort()

@@ -3,7 +3,6 @@
 """ Local File Note Connector module
 """
 import re
-import time
 import os
 from datetime import datetime
 import shutil
@@ -105,6 +104,11 @@ def find_local_notes(search_request):
             continue
 
         timestamp, note = parse_note_line(line)
+
+        if search_request.date:
+            pattern = re.compile(search_request.date.strftime("%a %b %d [^ ]+ %Y"))
+            if not pattern.match(timestamp):
+                continue
 
         if note:
             epoch = datestring_to_timestamp(timestamp)

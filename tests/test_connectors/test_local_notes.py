@@ -2,6 +2,7 @@
 """
 
 import unittest
+import datetime
 from mock import MagicMock, mock_open, patch, call
 from ddt import ddt, data, unpack
 from ashaw_notes.connectors import local_notes
@@ -200,7 +201,7 @@ class LocalNotesTests(unittest.TestCase):
     @patch('builtins.open', new_callable=mock_open)
     @patch('ashaw_notes.connectors.local_notes.get_notes_file_location')
     def test_find_local_notes(self, get_notes_file_location, mopen):
-        """Verifies get_notes_file_location is properly functioning"""
+        """Verifies find_local_notes is properly functioning"""
         get_notes_file_location.return_value = '/home/user/notes'
         mopen.return_value = [
             '[Thu Jul 11 00:00:00 2013] haystack 2',
@@ -209,11 +210,20 @@ class LocalNotesTests(unittest.TestCase):
             '[Thu Jul 11 00:00:03 2013] haystack 3',
             '[Thu Jul 11 00:00:04 2013] needle...not.',
             '[Thu Jul 11 00:00:05 2013] needle number 2',
+            '[Sat Jul 13 15:00:00 2013] a different day',
+            '[Sat Jul 13 15:00:01 2013] still a different day',
         ]
-        request = get_search_request(['needle', '!not'])
+        request = get_search_request(['needle', '!not'], allow_plugins=False)
         filtered_notes = local_notes.find_local_notes(request)
         self.assertListEqual(
             [(1373500802, 'needle'), (1373500805, 'needle number 2')],
+            filtered_notes)
+
+        request = get_search_request([], allow_plugins=False)
+        request.date = datetime.datetime(2013, 7, 13, 19, 0)
+        filtered_notes = local_notes.find_local_notes(request)
+        self.assertListEqual(
+            [(1373727600, 'a different day'), (1373727601, 'still a different day')],
             filtered_notes)
 
     @patch('ashaw_notes.utils.configuration.load_config')

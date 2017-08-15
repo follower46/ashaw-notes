@@ -6,6 +6,7 @@ import re
 import time
 import calendar
 from dateutil.parser import parse
+from ashaw_notes.utils.plugin_manager import PluginManager
 
 
 def is_date(string):
@@ -34,24 +35,22 @@ def timestamp_to_datestring(timestamp):
     return time.asctime(time.gmtime(timestamp))
 
 
-def get_search_request(terms=None):
+def get_search_request(terms=None, allow_plugins=True):
     """Builds search request object"""
-    return SearchRequest(terms)
+    request = SearchRequest(terms)
+    if allow_plugins:
+        return PluginManager().process_search_request(request)
+    return request
 
 
 class SearchRequest:
     """Search request object"""
-    inclusion_terms = []
-    exclusion_terms = []
-    date_range = [] # not implemented
-    page_limit = 0 # not implemented
-    page_index = 1 # not implemented
     def __init__(self, search_terms):
         self.inclusion_terms = []
         self.exclusion_terms = []
-        self.date_range = []
-        self.page_limit = 0
-        self.page_index = 0
+        self.date = None
+        self.page_limit = 0 # not implemented
+        self.page_index = 0 # not implemented
 
         if search_terms is None:
             search_terms = []

@@ -269,7 +269,7 @@ class LocalNotesTests(unittest.TestCase):
 
     @patch('ashaw_notes.connectors.redis_notes.get_redis_connection')
     def test_find_redis_notes(self, get_redis_connection):
-        """Verifies get_common_words is properly functioning"""
+        """Verifies find_redis_notes is properly functioning"""
         get_redis_connection.return_value = self.redis
         redis_notes.add_redis_note(1373500800, "today: this is a simple test #yolo")
         redis_notes.add_redis_note(1450794188, "today: this is note 2")
@@ -288,10 +288,10 @@ class LocalNotesTests(unittest.TestCase):
         request = get_search_request(['simple'])
         self.assertListEqual(first_note, redis_notes.find_redis_notes(request))
 
-        request = get_search_request(['today'])
+        request = get_search_request(['this'])
         self.assertListEqual(both_notes, redis_notes.find_redis_notes(request))
 
-        request = get_search_request(['today', '!yolo'])
+        request = get_search_request(['this', '!yolo'])
         self.assertListEqual(second_note, redis_notes.find_redis_notes(request))
 
         request = get_search_request(['!note'])
@@ -299,6 +299,9 @@ class LocalNotesTests(unittest.TestCase):
 
         request = get_search_request()
         self.assertListEqual(both_notes, redis_notes.find_redis_notes(request))
+
+        request = get_search_request(['1450794188'])
+        self.assertListEqual(second_note, redis_notes.find_redis_notes(request))
 
         request = get_search_request(['missing'])
         self.assertListEqual([(None, None)], redis_notes.find_redis_notes(request))
