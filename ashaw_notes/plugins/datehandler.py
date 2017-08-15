@@ -3,6 +3,7 @@
 import dateparser
 from ashaw_notes.plugins import base_plugin
 
+
 class Plugin(base_plugin.Plugin):
     """Date Handler Plugin Class"""
 

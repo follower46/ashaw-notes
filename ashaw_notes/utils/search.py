@@ -45,12 +45,13 @@ def get_search_request(terms=None, allow_plugins=True):
 
 class SearchRequest:
     """Search request object"""
+
     def __init__(self, search_terms):
         self.inclusion_terms = []
         self.exclusion_terms = []
         self.date = None
-        self.page_limit = 0 # not implemented
-        self.page_index = 0 # not implemented
+        self.page_limit = 0  # not implemented
+        self.page_index = 0  # not implemented
 
         if search_terms is None:
             search_terms = []

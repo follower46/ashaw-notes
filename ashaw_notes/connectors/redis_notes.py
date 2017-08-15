@@ -15,7 +15,8 @@ logger = ashaw_notes.utils.configuration.get_logger()
 
 def is_enabled():
     """Checks if connector is enabled"""
-    backends = ashaw_notes.utils.configuration.load_config().get('base_config', 'data_backends')
+    backends = ashaw_notes.utils.configuration.load_config().get('base_config',
+                                                                 'data_backends')
     return CONFIG_SECTION in backends
 
 
@@ -50,7 +51,8 @@ def get_common_words():
 
 # Module Specific Methods
 
-__redis__ = None # reduces the number of simultaneous redis connections
+__redis__ = None  # reduces the number of simultaneous redis connections
+
 
 def add_redis_note(timestamp, note):
     """Adds a note to redis"""
@@ -150,9 +152,9 @@ def find_redis_notes(search_request):
             search_request.date.timestamp()
         )
         required_keys += [
-            date_keys[0], # year
-            date_keys[1], # month
-            date_keys[2], # day
+            date_keys[0],  # year
+            date_keys[1],  # month
+            date_keys[2],  # day
         ]
 
     if required_keys:
@@ -166,15 +168,17 @@ def find_redis_notes(search_request):
         )
 
     if timestamps and excluded_keys:
-        timestamps = timestamps.difference(redis_connection.sunion(excluded_keys))
+        timestamps = timestamps.difference(
+            redis_connection.sunion(excluded_keys))
 
-    timestamps = [int(timestamp.decode('utf-8')) for timestamp in timestamps]
-    timestamps.sort()
+    timestamps = sorted([int(timestamp.decode('utf-8'))
+                         for timestamp in timestamps])
 
     if not timestamps:
         return [(None, None)]
 
-    notes = redis_connection.mget([get_note_key(timestamp) for timestamp in timestamps])
+    notes = redis_connection.mget(
+        [get_note_key(timestamp) for timestamp in timestamps])
     notes = [note.decode('utf-8') for note in notes]
     return list(zip(timestamps, notes))
 

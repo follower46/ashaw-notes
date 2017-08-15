@@ -27,12 +27,12 @@ class QuicknoteTests(unittest.TestCase):
         import_connectors.return_value = [1, 2, 3]
         take_note.return_value = "testing"
         quicknote.run_quicknote('ashaw_notes/scripts/quicknote.py')
-        add_parent_modules.assert_called_once_with('ashaw_notes/scripts/quicknote.py')
+        add_parent_modules.assert_called_once_with(
+            'ashaw_notes/scripts/quicknote.py')
         import_connectors.assert_called_once()
         setup_auto_complete.assert_called_once_with([1, 2, 3])
         take_note.assert_called_once()
         write_note.assert_called_once_with("testing", [1, 2, 3])
-
 
     @patch('sys.path')
     @patch('os.path')
@@ -47,7 +47,6 @@ class QuicknoteTests(unittest.TestCase):
         quicknote.add_parent_modules('ashaw_notes/scripts/quicknote.py')
         sys_path.append.assert_called_once_with('/home/user/github_clone')
 
-
     @patch.object(ConnectionManager, 'load_connectors')
     def test_import_connectors(self, load_connectors):
         """Verifies import_connectors is properly functioning"""
@@ -56,7 +55,6 @@ class QuicknoteTests(unittest.TestCase):
             [1, 2, 3],
             quicknote.import_connectors()
         )
-
 
     @patch('readline.parse_and_bind')
     @patch('ashaw_notes.scripts.quicknote.Completer')
@@ -71,10 +69,8 @@ class QuicknoteTests(unittest.TestCase):
         parse_and_bind.assert_called_once_with('tab: complete')
         self.assertEqual(1, len(completer.mock_calls))
         only_call = completer.mock_calls[0]
-        call_argument = only_call[1][0]
-        call_argument.sort()
+        call_argument = sorted(only_call[1][0])
         self.assertListEqual(['a', 'b', 'c', 'd', 'e'], call_argument)
-
 
     def test_completer(self):
         """Verifies Completer class is properly functioning"""
@@ -93,7 +89,6 @@ class QuicknoteTests(unittest.TestCase):
         quicknote.write_note("testing", [module1, module2])
         module1.save_note.assert_called_once_with(1373500800, "today: testing")
         module2.save_note.assert_called_once_with(1373500800, "today: testing")
-
 
     @unpack
     @data(

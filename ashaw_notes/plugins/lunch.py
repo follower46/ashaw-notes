@@ -3,6 +3,7 @@
 import re
 from ashaw_notes.plugins import base_plugin
 
+
 class Plugin(base_plugin.Plugin):
     """Lunch Plugin Class"""
     bypass_today = True
@@ -11,7 +12,6 @@ class Plugin(base_plugin.Plugin):
     def is_plugin_note(self, note):
         """Verifies note relates to plugin"""
         return bool(self.regex.match(note))
-
 
     def process_input(self, note):
         """Handle note input"""

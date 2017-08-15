@@ -17,14 +17,12 @@ class ConfigurationTests(unittest.TestCase):
         configuration.load_config()
         self.assertTrue(configuration.__local_config__ is not None)
 
-
     def test_config_multiple_load(self):
         """Validates that successive load_config calls does reload config object"""
         configuration.load_config()
         config = configuration.__local_config__
         configuration.load_config()
         self.assertEqual(configuration.__local_config__, config)
-
 
     def test_reload_config(self):
         """Validates reload_configs blows away config global"""
@@ -33,13 +31,13 @@ class ConfigurationTests(unittest.TestCase):
         configuration.reload_config()
         self.assertNotEqual(configuration.__local_config__, config)
 
-
     @patch('os.path.isfile')
     def test_get_notes_file_location(self, isfile):
         """Validates local config wins if found"""
         isfile.return_value = True
-        self.assertEqual(configuration.get_config_location(), 'notes-local.config')
-
+        self.assertEqual(
+            configuration.get_config_location(),
+            'notes-local.config')
 
     @patch('os.path.isfile')
     def test_config_missing(self, isfile):
@@ -47,9 +45,8 @@ class ConfigurationTests(unittest.TestCase):
         isfile.return_value = False
         with self.assertRaises(Exception) as context:
             configuration.get_config_location()
-            self.assertTrue('Config not found. Please verify configuration deployment'
-                            in context.exception)
-
+            self.assertTrue(
+                'Config not found. Please verify configuration deployment' in context.exception)
 
     @patch.object(logzero, 'logfile')
     @patch('ashaw_notes.utils.configuration.load_config')

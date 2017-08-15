@@ -12,7 +12,6 @@ class SearchTests(unittest.TestCase):
         """Verifies is_plugin_note is properly functioning"""
         self.assertFalse(Plugin().is_plugin_note('anything'))
 
-
     def test_process_input(self):
         """Verifies process_input is properly functioning"""
         self.assertEqual(
