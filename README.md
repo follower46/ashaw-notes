@@ -1,5 +1,7 @@
 ## Description
 
+[![Join the chat at https://gitter.im/ashaw-notes/Lobby](https://badges.gitter.im/ashaw-notes/Lobby.svg)](https://gitter.im/ashaw-notes/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 [![Build Status](https://travis-ci.org/follower46/ashaw-notes.svg?branch=master)](https://travis-ci.org/follower46/ashaw-notes)
 [![codecov](https://codecov.io/gh/follower46/ashaw-notes/branch/master/graph/badge.svg)](https://codecov.io/gh/follower46/ashaw-notes)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
