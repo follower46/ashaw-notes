@@ -66,16 +66,18 @@ def process_note(note):
 
 class Completer:
     """Auto completion class"""
+
     def __init__(self, words):
         self.words = words
         self.prefix = None
         self.matching_words = []
+
     def complete(self, prefix, index):
         """Auto completion method"""
         if prefix != self.prefix:
             self.matching_words = [
                 w for w in self.words if w.startswith(prefix)
-                ]
+            ]
             self.prefix = prefix
         try:
             return self.matching_words[index] + " "

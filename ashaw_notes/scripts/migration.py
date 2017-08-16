@@ -38,9 +38,15 @@ def migrate_notes(source, target):
     notes = source.find_notes([])
     count = 1
     for timestamp, note in notes:
-        print("%s/%s - [%s] %s" % (count, len(notes), timestamp_to_datestring(timestamp), note))
+        print(
+            "%s/%s - [%s] %s" %
+            (count,
+             len(notes),
+                timestamp_to_datestring(timestamp),
+                note))
         target.save_note(timestamp, note)
         count += 1
+
 
 if __name__ == '__main__':
     run_migrations(sys.argv)

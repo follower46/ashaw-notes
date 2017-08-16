@@ -3,6 +3,7 @@
 import importlib
 import ashaw_notes.utils.configuration
 
+
 class ConnectionManager:
     """Connection Manager Class"""
     connectors = None
@@ -10,7 +11,6 @@ class ConnectionManager:
     def __init__(self):
         if not self.connectors:
             self.load_connectors()
-
 
     def load_connectors(self):
         """Returns all enabled plugins"""
@@ -23,12 +23,10 @@ class ConnectionManager:
             )
         return self.connectors
 
-
     def load_connector(self, connector_class_name):
         return importlib.import_module(
             "ashaw_notes.connectors.%s" % connector_class_name
         )
-
 
     def get_primary_connector(self):
         """Returns primary backend connector"""

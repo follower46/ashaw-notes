@@ -24,7 +24,6 @@ class Pluginests(unittest.TestCase):
             Plugin().is_plugin_note(note)
         )
 
-
     def test_process_input(self):
         """Verifies process_input is properly functioning"""
         self.assertEqual(

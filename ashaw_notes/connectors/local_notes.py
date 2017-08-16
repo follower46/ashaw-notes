@@ -16,7 +16,8 @@ CONFIG_SECTION = 'local_notes'
 
 def is_enabled():
     """Checks if connector is enabled"""
-    backends = ashaw_notes.utils.configuration.load_config().get('base_config', 'data_backends')
+    backends = ashaw_notes.utils.configuration.load_config().get('base_config',
+                                                                 'data_backends')
     return CONFIG_SECTION in backends
 
 
@@ -51,6 +52,7 @@ def get_common_words():
 # Module Specific Methods
 
 __line_regex__ = re.compile(r'\[([^\]]+)\] (.*)')
+
 
 def add_local_note(timestamp, note):
     """Inserts note into local file"""
@@ -106,7 +108,8 @@ def find_local_notes(search_request):
         timestamp, note = parse_note_line(line)
 
         if search_request.date:
-            pattern = re.compile(search_request.date.strftime("%a %b %d [^ ]+ %Y"))
+            pattern = re.compile(
+                search_request.date.strftime("%a %b %d [^ ]+ %Y"))
             if not pattern.match(timestamp):
                 continue
 
@@ -171,7 +174,8 @@ def write_header(file, note):
 
 def build_note_line(timestamp, note):
     """Generates a note line for insertion"""
-    return "[%s] %s" % (ashaw_notes.utils.search.timestamp_to_datestring(timestamp), note)
+    return "[%s] %s" % (
+        ashaw_notes.utils.search.timestamp_to_datestring(timestamp), note)
 
 
 def parse_note_line(notes_line):

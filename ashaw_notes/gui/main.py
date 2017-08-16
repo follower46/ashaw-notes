@@ -29,7 +29,6 @@ class App(QMainWindow):
         self.timestamp = timestamp_to_datestring
         self.init_interface()
 
-
     def init_interface(self):
         """Sets up base UI"""
         self.setWindowTitle(self.title)
@@ -52,7 +51,6 @@ class App(QMainWindow):
         self.show()
         self.logger.debug("[Window] Window Drawn")
 
-
     def add_parent_modules(self, sys_args):
         """Adds parent modules to import"""
         script_path = os.path.abspath(os.path.dirname(sys_args))
@@ -60,11 +58,12 @@ class App(QMainWindow):
         parent_parent_path = os.path.dirname(parent_path)
         sys.path.append(parent_parent_path)
 
-
     def filter_notes(self):
         """Displays filtered down notes"""
         self.logger.debug("[Filter] Filtering Down Notes")
-        self.logger.info("[Filter] Filter Term: %s", self.filter_txt.toPlainText())
+        self.logger.info(
+            "[Filter] Filter Term: %s",
+            self.filter_txt.toPlainText())
         self.notes_txt.setText('')
         connector = self.connection_manager.get_primary_connector()
         text = self.filter_txt.toPlainText()
@@ -74,9 +73,10 @@ class App(QMainWindow):
             terms = []
         notes = connector.find_notes(terms)
         for timestamp, note in notes:
-            self.notes_txt.insertPlainText("[%s] %s\n" % (self.timestamp(timestamp), note))
+            self.notes_txt.insertPlainText(
+                "[%s] %s\n" %
+                (self.timestamp(timestamp), note))
         self.logger.debug("[Filter] Notes Filtered")
-
 
     def resizeEvent(self, event):
         """Handles resizing"""

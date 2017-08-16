@@ -22,7 +22,6 @@ class SearchTests(unittest.TestCase):
         """Verifies is_date is properly functioning"""
         self.assertEqual(search.is_date(string), expectation)
 
-
     @unpack
     @data(
         ('#hashtag', True),
@@ -37,7 +36,6 @@ class SearchTests(unittest.TestCase):
         """Verifies is_hashtag is properly functioning"""
         self.assertEqual(search.is_hashtag(string), expectation)
 
-
     @unpack
     @data(
         ('Thu Jul 11 00:00:00 2013', 1373500800),
@@ -48,7 +46,6 @@ class SearchTests(unittest.TestCase):
         """Verifies string can be converted into a timstamp"""
         self.assertEqual(search.datestring_to_timestamp(string), expectation)
 
-
     @unpack
     @data(
         (1373500800, 'Thu Jul 11 00:00:00 2013'),
@@ -57,8 +54,9 @@ class SearchTests(unittest.TestCase):
     )
     def test_timestamp_to_datestring(self, timestamp, expectation):
         """Verifies string can be converted into a timstamp"""
-        self.assertEqual(search.timestamp_to_datestring(timestamp), expectation)
-
+        self.assertEqual(
+            search.timestamp_to_datestring(timestamp),
+            expectation)
 
     def test_get_search_request(self):
         """Verifies Search Object works as intended"""
