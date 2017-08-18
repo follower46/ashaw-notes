@@ -3,7 +3,6 @@
 """ Configuration Helper Module
 """
 import configparser
-import importlib
 from os import path
 import logzero
 
@@ -38,6 +37,14 @@ def get_config_location():
 def get_logger():
     """Configures and returns a logzero client"""
     config = load_config()
+
+    # Set a custom formatter
+    log_format = '%(color)s[%(levelname)1.1s ' \
+                 '%(asctime)s.%(msecs)03d %(module)s:%(lineno)d]' \
+                 '%(end_color)s %(message)s'
+    formatter = logzero.LogFormatter(fmt=log_format)
+    logzero.setup_default_logger(formatter=formatter)
+
     logzero.logfile(
         config.get('logging', 'location'),
         maxBytes=float(config.get('logging', 'max_bytes')),
