@@ -2,8 +2,9 @@
 """
 
 import unittest
-import fakeredis
 import logging
+import redis
+import fakeredis
 from mock import MagicMock, patch, call
 from ddt import ddt, data, unpack
 from ashaw_notes.connectors import redis_notes
@@ -94,10 +95,78 @@ class LocalNotesTests(unittest.TestCase):
                 b'year_2013'
             ], keys
         )
+        self.assertEqual(
+            b"today: this is a simple test #yolo",
+            self.redis.get('note_1373500800')
+        )
+
+    @patch('ashaw_notes.connectors.redis_notes.get_redis_connection')
+    def test_add_redis_note_duplicate(self, get_redis_connection):
+        """Verifies add_redis_note doesn't allow duplicates"""
+        get_redis_connection.return_value = self.redis
+        redis_notes.add_redis_note(
+            1373500800, "today: this is a simple test #yolo")
+        redis_notes.add_redis_note(
+            1373500800, "today: same time, different note")
+
+        keys = sorted(self.redis.keys())
+
+        self.assertListEqual(
+            [
+                b'day_11',
+                b'hour_0',
+                b'month_7',
+                b'note_1373500800',
+                b'note_1373500801',
+                b'w_#yolo',
+                b'w_a',
+                b'w_different',
+                b'w_is',
+                b'w_note',
+                b'w_same',
+                b'w_simple',
+                b'w_test',
+                b'w_this',
+                b'w_time',
+                b'w_today',
+                b'w_yolo',
+                b'weekday_3',
+                b'year_2013'
+            ], keys
+        )
+
+        self.assertEqual(
+            b"today: this is a simple test #yolo",
+            self.redis.get('note_1373500800')
+        )
+
+        self.assertEqual(
+            b"today: same time, different note",
+            self.redis.get('note_1373500801')
+        )
+
+    @patch('ashaw_notes.connectors.redis_notes.start_watch')
+    @patch('ashaw_notes.connectors.redis_notes.get_redis_connection')
+    def test_add_redis_note_failure(self, get_redis_connection, start_watch):
+        """Verifies that notes attempt re-add on failure"""
+        get_redis_connection.return_value = self.redis
+        start_watch.side_effect = [
+            redis.WatchError(),
+            True,
+        ]
+        redis_notes.add_redis_note(
+            1373500800, "today: this is a simple test #yolo")
+        self.assertEqual(
+            2,
+            len(start_watch.mock_calls))
+        self.assertEqual(
+            b"today: this is a simple test #yolo",
+            self.redis.get('note_1373500800')
+        )
 
     @patch('ashaw_notes.connectors.redis_notes.get_redis_connection')
     def test_delete_redis_note_miss(self, get_redis_connection):
-        """Verifies add_redis_note is properly functioning"""
+        """Verifies delete_redis_note handles bad timestamp properly"""
         get_redis_connection.return_value = self.redis
         redis_notes.add_redis_note(1373500800, "today: this is note 1")
         redis_notes.add_redis_note(1450794188, "today: this is note 2")
@@ -110,8 +179,20 @@ class LocalNotesTests(unittest.TestCase):
             self.redis.get('note_1450794188'))
 
     @patch('ashaw_notes.connectors.redis_notes.get_redis_connection')
+    def test_delete_redis_note_watched(self, get_redis_connection):
+        """Verifies delete_redis_note doesn't delete on a watched timestamp"""
+        get_redis_connection.return_value = self.redis
+        redis_notes.add_redis_note(1373500800, "today: this is note 1")
+        self.redis.set(redis_notes.get_watch_key(1373500800), 1234)
+        with self.assertRaises(RuntimeWarning):
+            redis_notes.delete_redis_note(1373500800)
+        self.assertEqual(
+            b"today: this is note 1",
+            self.redis.get('note_1373500800'))
+
+    @patch('ashaw_notes.connectors.redis_notes.get_redis_connection')
     def test_delete_redis_note_hit(self, get_redis_connection):
-        """Verifies add_redis_note is properly functioning"""
+        """Verifies delete_redis_note is properly functioning"""
         get_redis_connection.return_value = self.redis
         redis_notes.add_redis_note(
             1373500800, "today: this is a simple test #yolo")

@@ -5,6 +5,7 @@
 import re
 import time
 import redis
+import uuid
 import ashaw_notes.utils.search
 import ashaw_notes.utils.configuration
 
@@ -57,38 +58,79 @@ __redis__ = None  # reduces the number of simultaneous redis connections
 def add_redis_note(timestamp, note):
     """Adds a note to redis"""
     redis_connection = get_redis_connection()
-    tokens = get_note_tokens(timestamp, note)
+    note_key = get_note_key(timestamp)
+    watch_key = get_watch_key(timestamp)
+    if redis_connection.exists(note_key) or redis_connection.exists(watch_key):
+        # no duplicates are allowed
+        # add a little bit to the timestamp and try again
+        logger.warning("%s already exists, " \
+                    "adding 1 to timestamp and trying note " \
+                    "\"%s\" again", timestamp, note)
+        return add_redis_note(timestamp + 1, note)
 
-    logger.debug("Adding %s tokens" % len(tokens))
+    with redis_connection.pipeline() as pipe:
+        try:
+            start_watch(watch_key, pipe)
 
-    # Add search indices
-    for token in tokens:
-        redis_connection.sadd(token, timestamp)
+            tokens = get_note_tokens(timestamp, note)
+            logger.debug("Adding %s tokens", len(tokens))
+            for token in tokens:
+                pipe.sadd(token, timestamp)
 
-    # Add notes
-    logger.debug("Adding %s note" % timestamp)
-    redis_connection.set(get_note_key(timestamp), note)
+            logger.debug("Adding %s note", timestamp)
+            pipe.set(get_note_key(timestamp), note)
+
+            # Run pipe commands
+            pipe.execute()
+
+            # Clear out watch key
+            redis_connection.delete(watch_key)
+        except redis.WatchError:
+            # Redis has updated against the watch variable
+            logger.error("Watch failed on %s - \"%s\". " \
+                            "Attemping insert again.", watch_key, note)
+            add_redis_note(timestamp, note)
 
 
 def delete_redis_note(timestamp):
     """Removes a note from redis"""
     redis_connection = get_redis_connection()
+    note_key = get_note_key(timestamp)
+    watch_key = get_watch_key(timestamp)
 
-    if not redis_connection.exists(get_note_key(timestamp)):
+    if not redis_connection.exists(note_key):
+        logger.warning("Attempted to delete non-existing note: %s", timestamp)
         return
 
-    line = redis_connection.get(get_note_key(timestamp)).decode('utf-8')
-    tokens = get_note_tokens(timestamp, line)
+    if redis_connection.exists(watch_key):
+        logger.error("Existing opperation on %s", watch_key)
+        raise RuntimeWarning("%s was found! Update against %s in progress", watch_key, timestamp)
 
-    logger.debug("Deleting %s" % timestamp)
-    logger.debug("Deleting %s tokens" % len(tokens))
-    # Remove search indices
-    for token in tokens:
-        redis_connection.srem(token, timestamp)
+    with redis_connection.pipeline() as pipe:
+        start_watch(watch_key, pipe)
+        # get current notes
+        note = pipe.get(get_note_key(timestamp)).decode('utf-8')
+        # Return pipe to multi mode
+        pipe.multi()
 
-    # Remove notes
-    logger.debug("Deleting %s note" % timestamp)
-    redis_connection.delete(get_note_key(timestamp))
+        tokens = get_note_tokens(timestamp, note)
+        logger.debug("Deleting %s tokens", len(tokens))
+        for token in tokens:
+            pipe.srem(token, timestamp)
+
+        logger.debug("Deleting %s note", timestamp)
+        pipe.delete(get_note_key(timestamp))
+
+        # Run pipe commands
+        pipe.execute()
+
+        # Clear out watch key
+        redis_connection.delete(watch_key)
+
+
+def get_watch_key(timestamp):
+    """Generates watch keyname for note"""
+    return "watch_%s" % timestamp
 
 
 def get_note_key(timestamp):
@@ -132,14 +174,24 @@ def get_note_tokens(timestamp, line):
     return tokens
 
 
+def start_watch(watch_key, pipe):
+    """Adds watch to redis pipe"""
+    # Create watch key
+    get_redis_connection().set(watch_key, uuid.uuid4())
+    # Start the watch
+    pipe.watch(watch_key)
+
+
 def find_redis_notes(search_request):
     """Finds all notes related to the request"""
+    logger.debug("Finding notes")
     redis_connection = get_redis_connection()
     timestamps = set([])
 
     required_keys = []
     excluded_keys = []
 
+    logger.debug("Building Redis Keys")
     if search_request.inclusion_terms:
         required_keys += [get_word_key(term)
                           for term in search_request.inclusion_terms]
@@ -148,6 +200,7 @@ def find_redis_notes(search_request):
                           for term in search_request.exclusion_terms]
 
     if search_request.date:
+        logger.debug("Building Redis Keys: Date")
         date_keys = get_date_keys(
             search_request.date.timestamp()
         )
@@ -157,6 +210,7 @@ def find_redis_notes(search_request):
             date_keys[2],  # day
         ]
 
+    logger.debug("Getting Timestamps")
     if required_keys:
         # filter against required note keys
         timestamps = redis_connection.sinter(required_keys)
@@ -168,18 +222,23 @@ def find_redis_notes(search_request):
         )
 
     if timestamps and excluded_keys:
+        logger.debug("Excluding Timestamps")
         timestamps = timestamps.difference(
             redis_connection.sunion(excluded_keys))
 
+    logger.debug("Sorting timestamps")
     timestamps = sorted([int(timestamp.decode('utf-8'))
                          for timestamp in timestamps])
 
     if not timestamps:
         return [(None, None)]
 
+    logger.debug("Getting Notes")
     notes = redis_connection.mget(
         [get_note_key(timestamp) for timestamp in timestamps])
+    logger.debug("Decoding Notes")
     notes = [note.decode('utf-8') for note in notes]
+    logger.debug("Zipping Notes")
     return list(zip(timestamps, notes))
 
 
