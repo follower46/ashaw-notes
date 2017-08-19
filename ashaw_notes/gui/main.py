@@ -41,7 +41,7 @@ class App(QMainWindow):
 
         filter_txt = QTextEdit(self)
         filter_txt.setReadOnly(False)
-        filter_txt.setText('today')
+        filter_txt.setText('date:today')
         filter_txt.setFocus()
         filter_txt.textChanged.connect(self.filter_notes)
         self.filter_txt = filter_txt

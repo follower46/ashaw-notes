@@ -378,7 +378,7 @@ class LocalNotesTests(unittest.TestCase):
         request = get_search_request()
         self.assertListEqual(both_notes, redis_notes.find_redis_notes(request))
 
-        request = get_search_request(['1450794188'])
+        request = get_search_request(['date:1450794188'])
         self.assertListEqual(second_note,
                              redis_notes.find_redis_notes(request))
 

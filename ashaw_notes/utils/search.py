@@ -7,7 +7,7 @@ import time
 import calendar
 from dateutil.parser import parse
 from ashaw_notes.utils.plugin_manager import PluginManager
-
+import ashaw_notes.utils.configuration
 
 def is_date(string):
     """Verifies string is a type of date"""
