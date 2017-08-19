@@ -7,7 +7,9 @@ import time
 import calendar
 from dateutil.parser import parse
 from ashaw_notes.utils.plugin_manager import PluginManager
+import ashaw_notes.utils.configuration
 
+__logger__ = ashaw_notes.utils.configuration.get_logger()
 
 def is_date(string):
     """Verifies string is a type of date"""
@@ -37,7 +39,9 @@ def timestamp_to_datestring(timestamp):
 
 def get_search_request(terms=None, allow_plugins=True):
     """Builds search request object"""
+    __logger__.debug("Instantiating SearchRequest")
     request = SearchRequest(terms)
+    __logger__.debug("Checking Plugins")
     if allow_plugins:
         return PluginManager().process_search_request(request)
     return request

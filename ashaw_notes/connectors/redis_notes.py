@@ -39,7 +39,9 @@ def update_note(original_timestamp, new_timestamp, new_note):
 
 def find_notes(search_terms):
     """Returns all notes corresponding to supplied search object"""
+    logger.debug("Building search request")
     request = ashaw_notes.utils.search.get_search_request(search_terms)
+    logger.debug("Calling find_redis_notes")
     return find_redis_notes(request)
 
 
