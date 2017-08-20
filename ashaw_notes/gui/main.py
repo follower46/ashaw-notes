@@ -3,8 +3,8 @@
 import sys
 import os
 from PyQt5.QtWidgets import QApplication, QWidget, QMainWindow
-from PyQt5.QtWidgets import QPushButton, QTextEdit
-from PyQt5.QtGui import QIcon
+from PyQt5.QtWidgets import QPushButton, QTextEdit, QLineEdit
+from PyQt5.QtGui import QIcon, QFont
 from PyQt5.QtCore import pyqtSlot, Qt
 
 
@@ -37,13 +37,22 @@ class App(QMainWindow):
 
         notes_txt = QTextEdit(self)
         notes_txt.setReadOnly(True)
+
+        font = QFont('Monospace')
+        #font.setPointSize(16)
+        #font.setStyleHint(QFont.Monospace)
+        #font.setFamily(QFont.Monospace)
+        notes_txt.setFont(font)
+
         self.notes_txt = notes_txt
 
-        filter_txt = QTextEdit(self)
+        filter_txt = QLineEdit(self)
         filter_txt.setReadOnly(False)
         filter_txt.setText('date:today')
         filter_txt.setFocus()
         filter_txt.textChanged.connect(self.filter_notes)
+        filter_txt.setStyleSheet("border: 0px;")
+        filter_txt.setToolTip("Filter Input")
         self.filter_txt = filter_txt
 
         self.filter_notes()
@@ -63,10 +72,10 @@ class App(QMainWindow):
         self.logger.debug("[Filter] Filtering Down Notes")
         self.logger.info(
             "[Filter] Filter Term: %s",
-            self.filter_txt.toPlainText())
+            self.filter_txt.text())
         self.notes_txt.setText('')
         connector = self.connection_manager.get_primary_connector()
-        text = self.filter_txt.toPlainText()
+        text = self.filter_txt.text()
         if text != "":
             terms = [term.strip() for term in text.split(' ')]
         else:
