@@ -77,7 +77,10 @@ def add_redis_note(timestamp, note):
             tokens = get_note_tokens(timestamp, note)
             logger.debug("Adding %s tokens", len(tokens))
             for token in tokens:
-                pipe.sadd(token, timestamp)
+                add_note_token(pipe, token, timestamp)
+            
+            # add source token
+            add_note_token(pipe, get_note_source_key(), timestamp)
 
             logger.debug("Adding %s note", timestamp)
             pipe.set(get_note_key(timestamp), note)
@@ -92,6 +95,12 @@ def add_redis_note(timestamp, note):
             logger.error("Watch failed on %s - \"%s\". " \
                             "Attemping insert again.", watch_key, note)
             add_redis_note(timestamp, note)
+
+
+def add_note_token(pipe, token, timestamp):
+    """Adds note token to redis pipe"""
+    pipe.sadd(token, timestamp)
+    pipe.sadd(get_note_index_key(timestamp), token)
 
 
 def delete_redis_note(timestamp):
@@ -110,18 +119,20 @@ def delete_redis_note(timestamp):
 
     with redis_connection.pipeline() as pipe:
         start_watch(watch_key, pipe)
-        # get current notes
-        note = pipe.get(get_note_key(timestamp)).decode('utf-8')
+        # get current notes tokens
+        tokens = pipe.smembers(get_note_index_key(timestamp))
         # Return pipe to multi mode
         pipe.multi()
 
-        tokens = get_note_tokens(timestamp, note)
         logger.debug("Deleting %s tokens", len(tokens))
         for token in tokens:
             pipe.srem(token, timestamp)
 
         logger.debug("Deleting %s note", timestamp)
         pipe.delete(get_note_key(timestamp))
+
+        logger.debug("Deleting %s note index", timestamp)
+        pipe.delete(get_note_index_key(timestamp))
 
         # Run pipe commands
         pipe.execute()
@@ -140,6 +151,13 @@ def get_note_key(timestamp):
     return "note_%s" % timestamp
 
 
+def get_note_source_key():
+    """Generates redis source keyname for note"""
+    config = ashaw_notes.utils.configuration.load_config()
+    source = config.get(CONFIG_SECTION, 'note_source')
+    return "source_%s" % source
+
+
 def get_word_key(word):
     """Generates redis keyname for word"""
     return "w_%s" % word.lower()
@@ -155,6 +173,11 @@ def get_date_keys(timestamp):
         "hour_%s" % note_time.tm_hour,
         "weekday_%s" % note_time.tm_wday,
     ]
+
+
+def get_note_index_key(timestamp):
+    """Generates redis keysnames for timestamp"""
+    return "_keys_%s" % timestamp
 
 
 def get_note_tokens(timestamp, line):
