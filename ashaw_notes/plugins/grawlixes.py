@@ -7,7 +7,8 @@ from ashaw_notes.plugins import base_plugin
 
 class Plugin(base_plugin.Plugin):
     """Grawlix Plugin Class"""
-
+    
+    """ List copyright 1953 Yosimite Sam """
     regex = re.compile(
         '(' \
         '(\\bfuck(ed|er|ers|up|ing|s|tard|fest|head|heads|ildoo)?\\b)' \
