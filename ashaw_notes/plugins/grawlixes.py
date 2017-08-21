@@ -20,6 +20,7 @@ class Plugin(base_plugin.Plugin):
         '|(\\biboubi(d)?\\b)' \
         '|(\\bhell\\b)' \
         ')'
+        , re.IGNORECASE
     )
 
     style = 'color:#ccc;' \
