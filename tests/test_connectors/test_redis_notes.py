@@ -81,7 +81,6 @@ class LocalNotesTests(unittest.TestCase):
 
         self.assertListEqual(
             [
-                b'_keys_1373500800',
                 b'day_11',
                 b'hour_0',
                 b'month_7',
@@ -119,8 +118,6 @@ class LocalNotesTests(unittest.TestCase):
 
         self.assertListEqual(
             [
-                b'_keys_1373500800',
-                b'_keys_1373500801',
                 b'day_11',
                 b'hour_0',
                 b'month_7',
@@ -213,8 +210,6 @@ class LocalNotesTests(unittest.TestCase):
 
         self.assertListEqual(
             [
-                b'_keys_1373500800',
-                b'_keys_1450794188',
                 b'day_11',
                 b'day_22',
                 b'hour_0',
@@ -251,7 +246,6 @@ class LocalNotesTests(unittest.TestCase):
         self.assertEqual(b"{b'1450794188'}", self.redis.get('month_12'))
         self.assertEqual(b"set()", self.redis.get('month_7'))
         self.assertEqual(None, self.redis.get('note_1373500800'))
-        self.assertEqual(None, self.redis.get('_keys_1373500800'))
         self.assertEqual(
             b"today: this is note 2",
             self.redis.get('note_1450794188'))
@@ -269,6 +263,7 @@ class LocalNotesTests(unittest.TestCase):
         self.assertEqual(b"set()", self.redis.get('weekday_3'))
         self.assertEqual(b"set()", self.redis.get('year_2013'))
         self.assertEqual(b"{b'1450794188'}", self.redis.get('year_2015'))
+        self.assertEqual(b"{b'1450794188'}", self.redis.get('source_unittests'))
 
     @unpack
     @data(
