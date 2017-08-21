@@ -17,7 +17,9 @@ class PluginTests(unittest.TestCase):
          'derp note'),
         (1373500800,
          'today: yay',
-         "<span style='color:#A6E22E' title='Thu Jul 11 00:00:00 2013'>today:</span> yay"),
+         "<a href='filter:date:2013-07-11' " \
+         "style='color:#A6E22E;text-decoration:none;' " \
+         "title='Thu Jul 11 00:00:00 2013'>today:</a> yay"),
     )
     def test_format_note_line(self, timestamp, note, expectation):
         """Verifies format_note_line is properly functioning"""

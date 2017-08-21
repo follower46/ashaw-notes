@@ -30,9 +30,12 @@ def datestring_to_timestamp(string):
     return int(calendar.timegm(time.strptime(string)))
 
 
-def timestamp_to_datestring(timestamp):
+def timestamp_to_datestring(timestamp, with_time=True):
     """Converts timestamp to date string"""
-    return time.asctime(time.gmtime(timestamp))
+    time_struct = time.gmtime(timestamp)
+    if with_time:
+        return time.asctime(time_struct)
+    return time.strftime('%Y-%m-%d', time_struct)
 
 
 def get_search_request(terms=None, allow_plugins=True):

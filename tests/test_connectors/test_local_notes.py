@@ -155,7 +155,7 @@ class LocalNotesTests(unittest.TestCase):
         local_notes.add_local_note(1373500800, "testing")
 
         backup_notes.assert_called_once()
-        write_header.assert_called_once_with(write_file, '2013-07-11T00:00:00')
+        write_header.assert_called_once_with(write_file, '2013-07-11')
         write_line.assert_called_once_with(
             write_file, '[Thu Jul 11 00:00:00 2013] testing')
         read_file.close.assert_called_once()
@@ -311,8 +311,8 @@ class LocalNotesTests(unittest.TestCase):
     @unpack
     @data(
         ([], 1373500800, False),
-        (['not in here'], 1373500800, False),
-        (['note', '2013-07-11T00:00:00', '=========='], 1373500800, True),
+        (['not in here\n'], 1373500800, False),
+        (['note\n', '2013-07-11\n', '==========\n'], 1373500800, True),
     )
     def test_is_header_found(self, file, timestamp, expectation):
         """Verifies is_header_found is properly functioning"""
@@ -324,7 +324,7 @@ class LocalNotesTests(unittest.TestCase):
     def test_get_date_header(self):
         """Verifies get_date_header is properly functioning"""
         header = local_notes.get_date_header(1373500800)
-        self.assertEqual('2013-07-11T00:00:00', header)
+        self.assertEqual('2013-07-11', header)
 
     def test_write_header(self):
         """Verifies write_header is properly functioning"""
