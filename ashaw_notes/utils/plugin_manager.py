@@ -45,3 +45,12 @@ class PluginManager:
             plugin.process_search_request(search_request)
             self.logger.debug("Processed")
         return search_request
+
+    def format_note_line(self, timestamp, note_line):
+        """Allows enabled plugins to modify note display"""
+        if not note_line:
+            return note_line
+        
+        for plugin in PluginManager.plugins:
+            note_line = plugin.format_note_line(timestamp, note_line)
+        return note_line
