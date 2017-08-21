@@ -1,9 +1,7 @@
 """ Date Handler Module
 """
 import re
-import dateparser
 from ashaw_notes.plugins import base_plugin
-import ashaw_notes.utils.configuration
 
 
 class Plugin(base_plugin.Plugin):
