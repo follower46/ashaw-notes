@@ -67,10 +67,11 @@ class PluginManagerTests(unittest.TestCase):
         """Verifies bypass_today is properly functioning"""
         request = MagicMock()
         plugin = MagicMock()
+        plugin.format_note_line.return_value = 'An updated string'
 
         manager = PluginManager()
         PluginManager.plugins = [plugin]
 
         self.assertEqual(None, manager.format_note_line(1373500800, None))
-        self.assertEqual('A string', manager.format_note_line(1373500800, 'A string'))
+        self.assertEqual('An updated string', manager.format_note_line(1373500800, 'A string'))
         plugin.process_search_request.format_note_line(1373500800, 'A string')
