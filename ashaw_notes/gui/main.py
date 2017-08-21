@@ -79,18 +79,23 @@ class App(QMainWindow):
             "[Filter] Filter Term: %s",
             self.filter_txt.text())
         self.notes_txt.setText('')
-        connector = self.connection_manager.get_primary_connector()
         text = self.filter_txt.text()
-        if text != "":
+        if len(text) > 2:
             terms = [term.strip() for term in text.split(' ')]
         else:
-            terms = []
+            # for repsonsiveness, don't allow sub-3 character searches
+            return
+        connector = self.connection_manager.get_primary_connector()
         notes = connector.find_notes(terms)
+        self.logger.debug("[Filter] Found %s notes", len(notes))
         for timestamp, note in notes:
             self.notes_txt.insertHtml(
                 "%s<br>" %
                 self.plugin_manager.format_note_line(timestamp, note))
         self.logger.debug("[Filter] Notes Filtered")
+        self.notes_txt.verticalScrollBar().setValue(
+            self.notes_txt.verticalScrollBar().maximum()
+        )
 
     def resizeEvent(self, event):
         """Handles resizing"""
