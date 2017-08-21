@@ -78,7 +78,7 @@ def add_redis_note(timestamp, note):
             logger.debug("Adding %s tokens", len(tokens))
             for token in tokens:
                 add_note_token(pipe, token, timestamp)
-            
+
             # add source token
             add_note_token(pipe, get_note_source_key(), timestamp)
 
@@ -100,7 +100,6 @@ def add_redis_note(timestamp, note):
 def add_note_token(pipe, token, timestamp):
     """Adds note token to redis pipe"""
     pipe.sadd(token, timestamp)
-    pipe.sadd(get_note_index_key(timestamp), token)
 
 
 def delete_redis_note(timestamp):
@@ -120,7 +119,9 @@ def delete_redis_note(timestamp):
     with redis_connection.pipeline() as pipe:
         start_watch(watch_key, pipe)
         # get current notes tokens
-        tokens = pipe.smembers(get_note_index_key(timestamp))
+        note = pipe.get(get_note_key(timestamp)).decode('utf-8')
+        tokens = get_note_tokens(timestamp, note)
+        sources = pipe.keys("source_*")
         # Return pipe to multi mode
         pipe.multi()
 
@@ -131,8 +132,9 @@ def delete_redis_note(timestamp):
         logger.debug("Deleting %s note", timestamp)
         pipe.delete(get_note_key(timestamp))
 
-        logger.debug("Deleting %s note index", timestamp)
-        pipe.delete(get_note_index_key(timestamp))
+        logger.debug("Deleting %s note source", timestamp)
+        for source in sources:
+            pipe.srem(source, timestamp)
 
         # Run pipe commands
         pipe.execute()
@@ -173,11 +175,6 @@ def get_date_keys(timestamp):
         "hour_%s" % note_time.tm_hour,
         "weekday_%s" % note_time.tm_wday,
     ]
-
-
-def get_note_index_key(timestamp):
-    """Generates redis keysnames for timestamp"""
-    return "_keys_%s" % timestamp
 
 
 def get_note_tokens(timestamp, line):
