@@ -16,18 +16,19 @@ class Plugin(base_plugin.Plugin):
         '|(\\bdamn(s|ing|it|alamadingdong)?\\b)' \
         '|(\\bcrap(s|per|pers|ping|cakes|fest|sickles)?\\b)' \
         '|(\\bass(es|wipe|hat|hats|hole|holes)?\\b)' \
-        '|(\\bhell\\b)' \
         '|(\\bscrew(ed)?\\b)' \
         '|(\\biboubi(d)?\\b)' \
+        '|(\\bhell\\b)' \
         ')'
     )
 
-    def format_note_line(self, timestamp, note_line):
-        """Allows enabled plugins to modify note display"""
-        style = 'color:#ccc;' \
+    style = 'color:#ccc;' \
         'font-weight:bold;' \
         'text-transform:uppercase;'
+
+    def format_note_line(self, timestamp, note_line):
+        """Allows enabled plugins to modify note display"""
         note_line = Plugin.regex.sub(
-            r'<span style="' + style + r'" title="\1">@#$%\3</span>',
+            r'<span style="' + Plugin.style + r'" title="\1">@#$%\3\5\7\9\11\13\15\17</span>',
             note_line)
         return note_line

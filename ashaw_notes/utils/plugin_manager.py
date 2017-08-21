@@ -50,7 +50,7 @@ class PluginManager:
         """Allows enabled plugins to modify note display"""
         if not note_line:
             return note_line
-        
+
         for plugin in PluginManager.plugins:
             note_line = plugin.format_note_line(timestamp, note_line)
         return note_line

@@ -15,7 +15,7 @@ class Plugin(base_plugin.Plugin):
 
     def format_note_line(self, timestamp, note_line):
         """Allows enabled plugins to modify note display"""
+        note_line = Plugin.double_arrow_regex.sub("&hArr;", note_line)
         note_line = Plugin.right_arrow_regex.sub("&rArr;", note_line)
         note_line = Plugin.left_arrow_regex.sub("&lArr;", note_line)
-        note_line = Plugin.double_arrow_regex.sub("&hArr;", note_line)
         return note_line
