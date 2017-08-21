@@ -1,11 +1,11 @@
-""" Date Handler Module
+""" String/Quote Module
 """
 import re
 from ashaw_notes.plugins import base_plugin
 
 
 class Plugin(base_plugin.Plugin):
-    """Date Handler Plugin Class"""
+    """String Plugin Class"""
 
     regex = re.compile(r'"([^"]*)"')
 

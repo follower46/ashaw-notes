@@ -3,6 +3,7 @@
 import re
 import dateparser
 from ashaw_notes.plugins import base_plugin
+from ashaw_notes.utils.search import timestamp_to_datestring
 import ashaw_notes.utils.configuration
 
 
@@ -29,6 +30,7 @@ class Plugin(base_plugin.Plugin):
     def format_note_line(self, timestamp, note_line):
         """Allows enabled plugins to modify note display"""
         note_line = Plugin.regex.sub(
-            "<span style='color:#A6E22E'>today:</span>",
+            "<span style='color:#A6E22E' title='%s'>today:</span>"
+            % timestamp_to_datestring(timestamp),
             note_line)
         return note_line
