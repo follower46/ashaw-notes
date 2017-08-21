@@ -3,7 +3,7 @@
 import sys
 import os
 from PyQt5.QtWidgets import QApplication, QWidget, QMainWindow
-from PyQt5.QtWidgets import QPushButton, QTextEdit, QLineEdit
+from PyQt5.QtWidgets import QPushButton, QTextBrowser, QLineEdit
 from PyQt5.QtGui import QIcon, QFont
 from PyQt5.QtCore import pyqtSlot, Qt
 
@@ -37,8 +37,10 @@ class App(QMainWindow):
         self.setGeometry(self.left, self.top, self.width, self.height)
         self.statusBar().showMessage('Message in statusbar.')
 
-        notes_txt = QTextEdit(self)
+        notes_txt = QTextBrowser(self)
         notes_txt.setReadOnly(True)
+        notes_txt.anchorClicked.connect(self.click_link)
+        notes_txt.setOpenLinks(False)
 
         font = QFont('Monospace')
         notes_txt.setFont(font)
@@ -96,6 +98,14 @@ class App(QMainWindow):
         self.notes_txt.verticalScrollBar().setValue(
             self.notes_txt.verticalScrollBar().maximum()
         )
+
+    def click_link(self, qurl):
+        """Handles Note Clicking"""
+        url = qurl.toString()
+        self.logger.debug("Processing click: %s", url)
+        if url[0:7] == 'filter:':
+            self.filter_txt.setText(url[7:])
+            self.filter_notes()
 
     def resizeEvent(self, event):
         """Handles resizing"""

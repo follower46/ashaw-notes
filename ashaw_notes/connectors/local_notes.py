@@ -144,7 +144,6 @@ def restore_from_backup():
     """Restores previous note file"""
     if not use_backup():
         return
-    destination = get_notes_file_location()
     shutil.copyfile("%s.bak" % get_notes_file_location(),
                     get_notes_file_location())
 
@@ -156,14 +155,14 @@ def is_header_found(file, timestamp):
 
     header = get_date_header(timestamp)
     for line in file:
-        if header in line:
+        if "%s\n" % header == line:
             return True
     return False
 
 
 def get_date_header(timestamp):
     """Builds header"""
-    return datetime.utcfromtimestamp(timestamp).isoformat()
+    return ashaw_notes.utils.search.timestamp_to_datestring(timestamp, False)
 
 
 def write_header(file, note):

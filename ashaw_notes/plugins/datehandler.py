@@ -30,7 +30,9 @@ class Plugin(base_plugin.Plugin):
     def format_note_line(self, timestamp, note_line):
         """Allows enabled plugins to modify note display"""
         note_line = Plugin.regex.sub(
-            "<span style='color:#A6E22E' title='%s'>today:</span>"
-            % timestamp_to_datestring(timestamp),
+            "<a href='filter:date:%s' " \
+            "style='color:#A6E22E;text-decoration:none;' " \
+            "title='%s'>today:</a>"
+            % (timestamp_to_datestring(timestamp, False), timestamp_to_datestring(timestamp)),
             note_line)
         return note_line

@@ -48,14 +48,17 @@ class SearchTests(unittest.TestCase):
 
     @unpack
     @data(
-        (1373500800, 'Thu Jul 11 00:00:00 2013'),
-        (1450794188, 'Tue Dec 22 14:23:08 2015'),
-        (1493658390, 'Mon May  1 17:06:30 2017'),
+        (1373500800, True, 'Thu Jul 11 00:00:00 2013'),
+        (1450794188, True, 'Tue Dec 22 14:23:08 2015'),
+        (1493658390, True, 'Mon May  1 17:06:30 2017'),
+        (1373500800, False, '2013-07-11'),
+        (1450794188, False, '2015-12-22'),
+        (1493658390, False, '2017-05-01'),
     )
-    def test_timestamp_to_datestring(self, timestamp, expectation):
+    def test_timestamp_to_datestring(self, timestamp, with_time, expectation):
         """Verifies string can be converted into a timstamp"""
         self.assertEqual(
-            search.timestamp_to_datestring(timestamp),
+            search.timestamp_to_datestring(timestamp, with_time),
             expectation)
 
     def test_get_search_request(self):
