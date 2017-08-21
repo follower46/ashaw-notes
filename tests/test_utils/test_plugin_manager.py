@@ -51,3 +51,27 @@ class PluginManagerTests(unittest.TestCase):
         manager = PluginManager()
         self.assertTrue(manager.bypass_today('lunch'))
         self.assertFalse(manager.bypass_today('flunch'))
+
+    def test_process_search_request(self):
+        """Verifies bypass_today is properly functioning"""
+        request = MagicMock()
+        plugin = MagicMock()
+
+        manager = PluginManager()
+        PluginManager.plugins = [plugin]
+
+        self.assertEqual(request, manager.process_search_request(request))
+        plugin.process_search_request.assert_called_once_with(request)
+
+    def test_format_note_line(self):
+        """Verifies bypass_today is properly functioning"""
+        request = MagicMock()
+        plugin = MagicMock()
+        plugin.format_note_line.return_value = 'An updated string'
+
+        manager = PluginManager()
+        PluginManager.plugins = [plugin]
+
+        self.assertEqual(None, manager.format_note_line(1373500800, None))
+        self.assertEqual('An updated string', manager.format_note_line(1373500800, 'A string'))
+        plugin.process_search_request.format_note_line(1373500800, 'A string')

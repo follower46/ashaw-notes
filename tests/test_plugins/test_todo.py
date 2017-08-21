@@ -7,7 +7,7 @@ from ashaw_notes.plugins.todo import Plugin
 
 
 @ddt
-class Pluginests(unittest.TestCase):
+class PluginTests(unittest.TestCase):
     """Unit Testing Plugin"""
 
     @unpack

@@ -21,10 +21,12 @@ class App(QMainWindow):
         self.add_parent_modules(sys.argv[0])
 
         from ashaw_notes.utils.connection_manager import ConnectionManager
+        from ashaw_notes.utils.plugin_manager import PluginManager
         from ashaw_notes.utils.configuration import get_logger
         from ashaw_notes.utils.search import timestamp_to_datestring
 
         self.connection_manager = ConnectionManager()
+        self.plugin_manager = PluginManager()
         self.logger = get_logger()
         self.timestamp = timestamp_to_datestring
         self.init_interface()
@@ -39,10 +41,13 @@ class App(QMainWindow):
         notes_txt.setReadOnly(True)
 
         font = QFont('Monospace')
-        #font.setPointSize(16)
-        #font.setStyleHint(QFont.Monospace)
-        #font.setFamily(QFont.Monospace)
         notes_txt.setFont(font)
+        self.setStyleSheet("""
+        QTextEdit, QLineEdit {
+            background-color: #272822;
+            color: #aaa;
+        }
+        """)
 
         self.notes_txt = notes_txt
 
@@ -82,9 +87,9 @@ class App(QMainWindow):
             terms = []
         notes = connector.find_notes(terms)
         for timestamp, note in notes:
-            self.notes_txt.insertPlainText(
-                "[%s] %s\n" %
-                (self.timestamp(timestamp), note))
+            self.notes_txt.insertHtml(
+                "%s<br>" %
+                self.plugin_manager.format_note_line(timestamp, note))
         self.logger.debug("[Filter] Notes Filtered")
 
     def resizeEvent(self, event):
