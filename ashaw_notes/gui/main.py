@@ -2,6 +2,7 @@
 """
 import sys
 import os
+import webbrowser
 from PyQt5.QtWidgets import QApplication, QWidget, QMainWindow
 from PyQt5.QtWidgets import QPushButton, QTextBrowser, QLineEdit
 from PyQt5.QtGui import QIcon, QFont
@@ -107,6 +108,8 @@ class App(QMainWindow):
         if url[0:7] == 'filter:':
             self.filter_txt.setText(url[7:])
             self.filter_notes()
+        elif url[0:4] == 'http':
+            webbrowser.open(url, autoraise=True)
 
     def resizeEvent(self, event):
         """Handles resizing"""
