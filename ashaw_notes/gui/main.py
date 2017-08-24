@@ -58,6 +58,7 @@ class App(QMainWindow):
         filter_txt.setText('date:today')
         filter_txt.setFocus()
         filter_txt.textChanged.connect(self.filter_notes)
+        filter_txt.returnPressed.connect(self.filter_notes)
         filter_txt.setStyleSheet("border: 0px;")
         filter_txt.setToolTip("Filter Input")
         self.filter_txt = filter_txt
