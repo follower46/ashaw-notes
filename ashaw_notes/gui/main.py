@@ -4,7 +4,7 @@ import sys
 import os
 import webbrowser
 from PyQt5.QtWidgets import QApplication, QWidget, QMainWindow
-from PyQt5.QtWidgets import QPushButton, QTextBrowser, QLineEdit
+from PyQt5.QtWidgets import QPushButton, QTextBrowser, QLineEdit, QCompleter
 from PyQt5.QtGui import QIcon, QFont
 from PyQt5.QtCore import pyqtSlot, Qt
 
@@ -64,6 +64,11 @@ class App(QMainWindow):
         filter_txt.setToolTip("Filter Input")
         self.filter_txt = filter_txt
 
+        completer = QCompleter(self.connection_manager.get_primary_connector().get_common_words())
+        completer.setCompletionMode(QCompleter.PopupCompletion)
+        completer.setCaseSensitivity(Qt.CaseInsensitive)
+        filter_txt.setCompleter(completer)
+
         self.filter_notes()
         self.logger.debug("[Window] Drawing Window")
         self.show()
@@ -95,6 +100,7 @@ class App(QMainWindow):
         html = ''
         for timestamp, note in notes:
             html += "%s<br>" % self.plugin_manager.format_note_line(timestamp, note)
+        self.logger.debug("[Filter] DOM prepared. Drawing")
         self.notes_txt.insertHtml(html)
         self.logger.debug("[Filter] Notes Filtered")
         self.notes_txt.verticalScrollBar().setValue(
