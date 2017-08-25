@@ -4,7 +4,7 @@ import sys
 import os
 import webbrowser
 from PyQt5.QtWidgets import QApplication, QWidget, QMainWindow
-from PyQt5.QtWidgets import QPushButton, QTextBrowser, QLineEdit, QCompleter
+from PyQt5.QtWidgets import QPushButton, QTextBrowser, QLineEdit, QCompleter, QLabel
 from PyQt5.QtGui import QIcon, QFont
 from PyQt5.QtCore import pyqtSlot, Qt
 
@@ -17,7 +17,7 @@ class App(QMainWindow):
         self.title = 'Notes'
         self.left = 10
         self.top = 10
-        self.width = 720
+        self.width = 920
         self.height = 380
         self.add_parent_modules(sys.argv[0])
 
@@ -50,6 +50,11 @@ class App(QMainWindow):
             background-color: #272822;
             color: #aaa;
         }
+        QLabel {
+            font-weight: bold;
+            color: #aaa;
+            padding: 5px;
+        }
         """)
 
         self.notes_txt = notes_txt
@@ -64,10 +69,24 @@ class App(QMainWindow):
         filter_txt.setToolTip("Filter Input")
         self.filter_txt = filter_txt
 
-        completer = QCompleter(self.connection_manager.get_primary_connector().get_common_words())
+        words = list(self.connection_manager.get_primary_connector().get_common_words())
+        words.sort()
+        completer = QCompleter(words)
         completer.setCompletionMode(QCompleter.PopupCompletion)
         completer.setCaseSensitivity(Qt.CaseInsensitive)
+
+        completer.popup().setStyleSheet("""
+        QListView {
+            background-color: #272822;
+            color: #aaa;
+            selection-background-color: #511;
+        }
+        """)
         filter_txt.setCompleter(completer)
+
+        count_label = QLabel(self)
+        count_label.setAlignment(Qt.AlignRight)
+        self.count_label = count_label
 
         self.filter_notes()
         self.logger.debug("[Window] Drawing Window")
@@ -88,6 +107,7 @@ class App(QMainWindow):
             "[Filter] Filter Term: %s",
             self.filter_txt.text())
         self.notes_txt.setText('')
+        self.count_label.setText('loading...')
         text = self.filter_txt.text()
         if len(text) > 2:
             terms = [term.strip() for term in text.split(' ')]
@@ -97,6 +117,7 @@ class App(QMainWindow):
         connector = self.connection_manager.get_primary_connector()
         notes = connector.find_notes(terms)
         self.logger.debug("[Filter] Found %s notes", len(notes))
+        self.count_label.setText('%s results' % len(notes))
         html = ''
         for timestamp, note in notes:
             html += "%s<br>" % self.plugin_manager.format_note_line(timestamp, note)
@@ -130,6 +151,12 @@ class App(QMainWindow):
             0,
             event.size().height() - input_height,
             event.size().width(),
+            input_height
+        )
+        self.count_label.setGeometry(
+            event.size().width() - self.count_label.width(),
+            event.size().height() - input_height,
+            self.count_label.width(),
             input_height
         )
 
