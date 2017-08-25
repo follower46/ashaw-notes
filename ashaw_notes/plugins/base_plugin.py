@@ -1,4 +1,4 @@
-""" Lunch Plugin Module
+""" Base Plugin Module
 """
 
 
