@@ -92,10 +92,10 @@ class App(QMainWindow):
         connector = self.connection_manager.get_primary_connector()
         notes = connector.find_notes(terms)
         self.logger.debug("[Filter] Found %s notes", len(notes))
+        html = ''
         for timestamp, note in notes:
-            self.notes_txt.insertHtml(
-                "%s<br>" %
-                self.plugin_manager.format_note_line(timestamp, note))
+            html += "%s<br>" % self.plugin_manager.format_note_line(timestamp, note)
+        self.notes_txt.insertHtml(html)
         self.logger.debug("[Filter] Notes Filtered")
         self.notes_txt.verticalScrollBar().setValue(
             self.notes_txt.verticalScrollBar().maximum()
