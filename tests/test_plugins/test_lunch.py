@@ -30,7 +30,7 @@ class PluginTests(unittest.TestCase):
             'anything',
             Plugin().process_input('anything')
         )
-    
+
     @unpack
     @data(
         (1373500800,

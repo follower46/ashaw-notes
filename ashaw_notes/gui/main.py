@@ -3,7 +3,7 @@
 import sys
 import os
 import webbrowser
-from PyQt5.QtWidgets import QApplication, QWidget, QMainWindow
+from PyQt5.QtWidgets import QApplication, QWidget, QMainWindow, QMessageBox
 from PyQt5.QtWidgets import QPushButton, QTextBrowser, QLineEdit, QCompleter, QLabel
 from PyQt5.QtGui import QIcon, QFont
 from PyQt5.QtCore import pyqtSlot, Qt
@@ -30,7 +30,17 @@ class App(QMainWindow):
         self.plugin_manager = PluginManager()
         self.logger = get_logger()
         self.timestamp = timestamp_to_datestring
-        self.init_interface()
+        while True:
+            try:
+                self.init_interface()
+                break
+            except Exception as error:
+                response = QMessageBox.warning(
+                    self, 'Notes Error Occured', "%s" % error,
+                    QMessageBox.Retry | QMessageBox.Cancel, QMessageBox.Retry)
+
+                if response == QMessageBox.Cancel:
+                    exit()
 
     def init_interface(self):
         """Sets up base UI"""
