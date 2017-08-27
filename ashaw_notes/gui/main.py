@@ -8,6 +8,11 @@ from PyQt5.QtWidgets import QPushButton, QTextBrowser, QLineEdit, QCompleter, QL
 from PyQt5.QtGui import QIcon, QFont
 from PyQt5.QtCore import pyqtSlot, Qt
 
+from ashaw_notes.utils.connection_manager import ConnectionManager
+from ashaw_notes.utils.plugin_manager import PluginManager
+from ashaw_notes.utils.configuration import get_logger
+from ashaw_notes.utils.search import timestamp_to_datestring
+
 
 class App(QMainWindow):
     """QT Application"""
@@ -19,12 +24,6 @@ class App(QMainWindow):
         self.top = 10
         self.width = 920
         self.height = 380
-        self.add_parent_modules(sys.argv[0])
-
-        from ashaw_notes.utils.connection_manager import ConnectionManager
-        from ashaw_notes.utils.plugin_manager import PluginManager
-        from ashaw_notes.utils.configuration import get_logger
-        from ashaw_notes.utils.search import timestamp_to_datestring
 
         self.connection_manager = ConnectionManager()
         self.plugin_manager = PluginManager()
@@ -79,11 +78,10 @@ class App(QMainWindow):
         filter_txt.setToolTip("Filter Input")
         self.filter_txt = filter_txt
 
-        words = list(self.connection_manager.get_primary_connector().get_common_words())
-        words.sort()
-        completer = QCompleter(words)
+        completer = QCompleter(self.connection_manager.get_primary_connector().get_common_words())
         completer.setCompletionMode(QCompleter.PopupCompletion)
         completer.setCaseSensitivity(Qt.CaseInsensitive)
+        completer.setModelSorting(QCompleter.CaseInsensitivelySortedModel)
 
         completer.popup().setStyleSheet("""
         QListView {
@@ -170,8 +168,8 @@ class App(QMainWindow):
             input_height
         )
 
-
-if __name__ == '__main__':
+def run():
+    """Runs the Application"""
     app = QApplication(sys.argv)
     ex = App()
     sys.exit(app.exec_())

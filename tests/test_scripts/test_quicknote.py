@@ -16,9 +16,7 @@ class QuicknoteTests(unittest.TestCase):
     @patch('ashaw_notes.scripts.quicknote.take_note')
     @patch('ashaw_notes.scripts.quicknote.setup_auto_complete')
     @patch('ashaw_notes.scripts.quicknote.import_connectors')
-    @patch('ashaw_notes.scripts.quicknote.add_parent_modules')
     def test_run_quicknote(self,
-                           add_parent_modules,
                            import_connectors,
                            setup_auto_complete,
                            take_note,
@@ -26,26 +24,11 @@ class QuicknoteTests(unittest.TestCase):
         """Verifies run_quicknote is properly functioning"""
         import_connectors.return_value = [1, 2, 3]
         take_note.return_value = "testing"
-        quicknote.run_quicknote('ashaw_notes/scripts/quicknote.py')
-        add_parent_modules.assert_called_once_with(
-            'ashaw_notes/scripts/quicknote.py')
+        quicknote.run()
         import_connectors.assert_called_once()
         setup_auto_complete.assert_called_once_with([1, 2, 3])
         take_note.assert_called_once()
         write_note.assert_called_once_with("testing", [1, 2, 3])
-
-    @patch('sys.path')
-    @patch('os.path')
-    def test_add_parent_modules(self, os_path, sys_path):
-        """Verifies add_parent_modules is properly functioning"""
-        os_path.abspath.return_value = '/home/user/github_clone/ashaw_notes/scripts'
-        os_path.dirname.side_effect = [
-            'ashaw_notes/scripts',
-            '/home/user/github_clone/ashaw_notes',
-            '/home/user/github_clone',
-        ]
-        quicknote.add_parent_modules('ashaw_notes/scripts/quicknote.py')
-        sys_path.append.assert_called_once_with('/home/user/github_clone')
 
     @patch.object(ConnectionManager, 'load_connectors')
     def test_import_connectors(self, load_connectors):
@@ -89,6 +72,11 @@ class QuicknoteTests(unittest.TestCase):
         quicknote.write_note("testing", [module1, module2])
         module1.save_note.assert_called_once_with(1373500800, "today: testing")
         module2.save_note.assert_called_once_with(1373500800, "today: testing")
+
+    @patch('builtins.input')
+    def test_take_note(self, mock_input):
+        quicknote.take_note()
+        mock_input.assert_called_once_with("note: ")
 
     @unpack
     @data(

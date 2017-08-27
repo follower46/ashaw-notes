@@ -4,37 +4,27 @@
 """
 
 import sys
-import os
+from ashaw_notes.utils.connection_manager import ConnectionManager
+from ashaw_notes.utils.search import timestamp_to_datestring
 
 
-def add_parent_modules(sys_args):
-    """Adds parent modules to import"""
-    script_path = os.path.abspath(os.path.dirname(sys_args))
-    parent_path = os.path.dirname(script_path)
-    parent_parent_path = os.path.dirname(parent_path)
-    sys.path.append(parent_parent_path)
-
-
-def run_migrations(sys_argv):
+def run(source_name, target_name):
     """Main script method"""
-    add_parent_modules(sys_argv[0])
-    from ashaw_notes.utils.connection_manager import ConnectionManager
-    if len(sys_argv) < 2:
+    if not source_name:
         print("Source Connector Module is required")
         return
-    source = ConnectionManager().load_connector(sys_argv[1])
+    source = ConnectionManager().load_connector(source_name)
 
-    if len(sys_argv) < 3:
+    if not target_name:
         print("Target Connector Module is required")
         return
-    target = ConnectionManager().load_connector(sys_argv[2])
+    target = ConnectionManager().load_connector(target_name)
 
     migrate_notes(source, target)
 
 
 def migrate_notes(source, target):
     """Migrations notes from source connector to target connector"""
-    from ashaw_notes.utils.search import timestamp_to_datestring
     notes = source.find_notes([])
     count = 1
     for timestamp, note in notes:
@@ -42,11 +32,7 @@ def migrate_notes(source, target):
             "%s/%s - [%s] %s" %
             (count,
              len(notes),
-                timestamp_to_datestring(timestamp),
-                note))
+             timestamp_to_datestring(timestamp),
+             note))
         target.save_note(timestamp, note)
         count += 1
-
-
-if __name__ == '__main__':
-    run_migrations(sys.argv)

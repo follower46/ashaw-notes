@@ -6,28 +6,19 @@
 import time
 import readline
 import sys
-import os
+from ashaw_notes.utils.connection_manager import ConnectionManager
+from ashaw_notes.utils.plugin_manager import PluginManager
 
 
-def run_quicknote(sys_args):
+def run():
     """Main quicknote method"""
-    add_parent_modules(sys_args)
     modules = import_connectors()
     setup_auto_complete(modules)
     write_note(take_note(), modules)
 
 
-def add_parent_modules(sys_args):
-    """Adds parent modules to import"""
-    script_path = os.path.abspath(os.path.dirname(sys_args))
-    parent_path = os.path.dirname(script_path)
-    parent_parent_path = os.path.dirname(parent_path)
-    sys.path.append(parent_parent_path)
-
-
 def import_connectors():
     """Dynamic imports"""
-    from ashaw_notes.utils.connection_manager import ConnectionManager
     return ConnectionManager().load_connectors()
 
 
@@ -58,7 +49,6 @@ def take_note():
 
 def process_note(note):
     """Builds out note"""
-    from ashaw_notes.utils.plugin_manager import PluginManager
     if PluginManager().bypass_today(note):
         return note
     return "today: " + note
@@ -83,7 +73,3 @@ class Completer:
             return self.matching_words[index] + " "
         except IndexError:
             return None
-
-
-if __name__ == '__main__':
-    run_quicknote(sys.argv[0])
