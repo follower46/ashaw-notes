@@ -35,7 +35,7 @@ $ pip3 install -r requirements.txt
 
 ## Configure ashaw-notes
 
-Edit notes.config, decide if you want to use a redis backend or a local file.
+Copy notes.config to ```notes-local.config``` and begin editing, decide if you want to use a redis backend or a local file.
 There are benefits to both.
 
 Redis offers:
@@ -56,7 +56,7 @@ For running ashaw-notes on Redis, you can either run your own Redis container/se
 
 ## Running ashaw-notes
 
-After configuring the application execute ```quicknote.py```.
+After configuring the application execute ```python3 ./main.py quicknote```.
 You will be presented with an input box to add in your first note.
 After pressing "Enter" your note will be saved and the command will terminate.
 
@@ -64,24 +64,24 @@ After pressing "Enter" your note will be saved and the command will terminate.
 
 ## Migrating Notes
 
-If you're wanting to sample multiple backends (or if you have a local notes file you'd like to import into Redis) you can use the ```migration.py``` located in the scripts directory.
+If you're wanting to sample multiple backends (or if you have a local notes file you'd like to import into Redis) you can use ```python3 ./main.py migrate```.
 Simply execute the script with the modules you want to use as parameters. For example, 
 ```
-$ ./ashaw_notes/scripts/migration.py local_notes redis_notes
+$ python3 ./main.py migrate local_notes redis_notes
 ``` 
 will migrate the notes in your local system file to redis while 
 ```
-$ ./ashaw_notes/scripts/migration.py redis_notes local_notes
+$ python3 ./main.py migrate redis_notes local_notes
 ``` 
 will migrate all the notes stored on an external redis server to your local machine.
 
 ## Running the notes GUI client
 
-ashaw notes is a two-staged application. ```quicknotes.py``` allows for data entry and the QT GUI lets the user view and filter notes stored.
+ashaw notes is a two-staged application. ```python3 ./main.py quicknote``` allows for data entry and the QT GUI lets the user view and filter notes stored.
 
 To run the GUI client, you must first have QT installed on your local system. Once the prerequisites are met you can run the GUI by executing 
 ```
-python3 ashaw_notes/gui/main.py
+python3 ./main.py gui
 ```
 
 A UI will popup with a basic notes interface and a filter box at the bottom of the window. Typing in this filter box will allow you to quickly search your notes.

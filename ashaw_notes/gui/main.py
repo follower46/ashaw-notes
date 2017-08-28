@@ -8,6 +8,11 @@ from PyQt5.QtWidgets import QPushButton, QTextBrowser, QLineEdit, QCompleter, QL
 from PyQt5.QtGui import QIcon, QFont
 from PyQt5.QtCore import pyqtSlot, Qt
 
+from ashaw_notes.utils.connection_manager import ConnectionManager
+from ashaw_notes.utils.plugin_manager import PluginManager
+from ashaw_notes.utils.configuration import get_logger
+from ashaw_notes.utils.search import timestamp_to_datestring
+
 
 class App(QMainWindow):
     """QT Application"""
@@ -19,17 +24,21 @@ class App(QMainWindow):
         self.top = 10
         self.width = 920
         self.height = 380
-        self.add_parent_modules(sys.argv[0])
-
-        from ashaw_notes.utils.connection_manager import ConnectionManager
-        from ashaw_notes.utils.plugin_manager import PluginManager
-        from ashaw_notes.utils.configuration import get_logger
-        from ashaw_notes.utils.search import timestamp_to_datestring
 
         self.connection_manager = ConnectionManager()
         self.plugin_manager = PluginManager()
         self.logger = get_logger()
         self.timestamp = timestamp_to_datestring
+
+        # display elements
+        self.notes_txt = None
+        self.filter_txt = None
+        self.count_label = None
+
+        self.main_program_loop()
+
+    def main_program_loop(self):
+        """Main Connection Program Loop"""
         while True:
             try:
                 self.init_interface()
@@ -40,14 +49,24 @@ class App(QMainWindow):
                     QMessageBox.Retry | QMessageBox.Cancel, QMessageBox.Retry)
 
                 if response == QMessageBox.Cancel:
-                    exit()
+                    break
 
     def init_interface(self):
         """Sets up base UI"""
         self.setWindowTitle(self.title)
         self.setGeometry(self.left, self.top, self.width, self.height)
-        self.statusBar().showMessage('Message in statusbar.')
 
+        self.build_notes_display()
+        self.build_filter_display()
+        self.build_count_display()
+
+        self.filter_notes()
+        self.logger.debug("[Window] Drawing Window")
+        self.show()
+        self.logger.debug("[Window] Window Drawn")
+
+    def build_notes_display(self):
+        """Creates Notes UI"""
         notes_txt = QTextBrowser(self)
         notes_txt.setReadOnly(True)
         notes_txt.anchorClicked.connect(self.click_link)
@@ -69,6 +88,8 @@ class App(QMainWindow):
 
         self.notes_txt = notes_txt
 
+    def build_filter_display(self):
+        """Creates Filter UI"""
         filter_txt = QLineEdit(self)
         filter_txt.setReadOnly(False)
         filter_txt.setText('date:today')
@@ -79,11 +100,10 @@ class App(QMainWindow):
         filter_txt.setToolTip("Filter Input")
         self.filter_txt = filter_txt
 
-        words = list(self.connection_manager.get_primary_connector().get_common_words())
-        words.sort()
-        completer = QCompleter(words)
+        completer = QCompleter(self.connection_manager.get_primary_connector().get_common_words())
         completer.setCompletionMode(QCompleter.PopupCompletion)
         completer.setCaseSensitivity(Qt.CaseInsensitive)
+        completer.setModelSorting(QCompleter.CaseInsensitivelySortedModel)
 
         completer.popup().setStyleSheet("""
         QListView {
@@ -94,21 +114,11 @@ class App(QMainWindow):
         """)
         filter_txt.setCompleter(completer)
 
+    def build_count_display(self):
+        """Creates Count Lable UI"""
         count_label = QLabel(self)
         count_label.setAlignment(Qt.AlignRight)
         self.count_label = count_label
-
-        self.filter_notes()
-        self.logger.debug("[Window] Drawing Window")
-        self.show()
-        self.logger.debug("[Window] Window Drawn")
-
-    def add_parent_modules(self, sys_args):
-        """Adds parent modules to import"""
-        script_path = os.path.abspath(os.path.dirname(sys_args))
-        parent_path = os.path.dirname(script_path)
-        parent_parent_path = os.path.dirname(parent_path)
-        sys.path.append(parent_parent_path)
 
     def filter_notes(self):
         """Displays filtered down notes"""
@@ -170,8 +180,8 @@ class App(QMainWindow):
             input_height
         )
 
-
-if __name__ == '__main__':
+def run():
+    """Runs main application"""
     app = QApplication(sys.argv)
     ex = App()
     sys.exit(app.exec_())
