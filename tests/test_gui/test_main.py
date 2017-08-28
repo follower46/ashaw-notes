@@ -2,6 +2,7 @@
 """
 
 import unittest
+import logging
 import PyQt5.QtWidgets
 from mock import MagicMock, patch, call
 from ddt import ddt, data, unpack
@@ -13,6 +14,14 @@ from ashaw_notes.gui import main as qt
 @ddt
 class PluginTests(unittest.TestCase):
     """Unit Testing Plugin"""
+
+    def setUp(self):
+        """Setup for logging."""
+        logging.disable(logging.CRITICAL)
+
+    def tearDown(self):
+        """Stubbed teardown."""
+        pass
 
     @patch('sys.exit')
     @patch.object(PyQt5.QtWidgets.QApplication, 'exec_')
@@ -47,3 +56,52 @@ class PluginTests(unittest.TestCase):
         self.assertEqual(app.logger, get_logger.return_value)
         self.assertEqual(app.timestamp, t_to_d)
         loop.assert_called_once()
+
+    @patch.object(qt.App, 'init_interface')
+    @patch.object(qt.App, '__init__')
+    def test_main_program_loop_success(self, app_init, init_interface):
+        """Verifies App::main_program_loop is properly functioning"""
+        app_init.return_value = None
+        app = qt.App()
+        app.main_program_loop()
+        init_interface.assert_called_once()
+
+    @patch.object(PyQt5.QtWidgets.QMessageBox, 'warning')
+    @patch.object(qt.App, 'init_interface')
+    @patch.object(qt.App, '__init__')
+    def test_main_program_loop_single_failure(self, app_init, init_interface, warning):
+        """Verifies App::main_program_loop is properly functioning"""
+        app_init.return_value = None
+        init_interface.side_effect = [Exception("oops"), None]
+        warning.return_value = PyQt5.QtWidgets.QMessageBox.Retry
+        app = qt.App()
+        app.main_program_loop()
+        warning.assert_called_once_with(
+            app,
+            'Notes Error Occured',
+            'oops',
+            PyQt5.QtWidgets.QMessageBox.Retry | PyQt5.QtWidgets.QMessageBox.Cancel,
+            PyQt5.QtWidgets.QMessageBox.Retry)
+        self.assertEqual(
+            [call(), call()],
+            init_interface.mock_calls
+        )
+
+    @patch.object(PyQt5.QtWidgets.QMessageBox, 'warning')
+    @patch.object(qt.App, 'init_interface')
+    @patch.object(qt.App, '__init__')
+    def test_main_program_loop_single_cancel(self, app_init, init_interface, warning):
+        """Verifies App::main_program_loop is properly functioning"""
+        app_init.return_value = None
+        init_interface.side_effect = [Exception("oops"), None]
+        warning.return_value = PyQt5.QtWidgets.QMessageBox.Cancel
+        app = qt.App()
+        app.main_program_loop()
+        warning.assert_called_once_with(
+            app,
+            'Notes Error Occured',
+            'oops',
+            PyQt5.QtWidgets.QMessageBox.Retry | PyQt5.QtWidgets.QMessageBox.Cancel,
+            PyQt5.QtWidgets.QMessageBox.Retry)
+
+        init_interface.assert_called_once()

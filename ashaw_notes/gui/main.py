@@ -30,6 +30,11 @@ class App(QMainWindow):
         self.logger = get_logger()
         self.timestamp = timestamp_to_datestring
 
+        # display elements
+        self.notes_txt = None
+        self.filter_txt = None
+        self.count_label = None
+
         self.main_program_loop()
 
     def main_program_loop(self):
@@ -44,14 +49,24 @@ class App(QMainWindow):
                     QMessageBox.Retry | QMessageBox.Cancel, QMessageBox.Retry)
 
                 if response == QMessageBox.Cancel:
-                    exit()
+                    break
 
     def init_interface(self):
         """Sets up base UI"""
         self.setWindowTitle(self.title)
         self.setGeometry(self.left, self.top, self.width, self.height)
-        self.statusBar().showMessage('Message in statusbar.')
 
+        self.build_notes_display()
+        self.build_filter_display()
+        self.build_count_display()
+
+        self.filter_notes()
+        self.logger.debug("[Window] Drawing Window")
+        self.show()
+        self.logger.debug("[Window] Window Drawn")
+
+    def build_notes_display(self):
+        """Creates Notes UI"""
         notes_txt = QTextBrowser(self)
         notes_txt.setReadOnly(True)
         notes_txt.anchorClicked.connect(self.click_link)
@@ -73,6 +88,8 @@ class App(QMainWindow):
 
         self.notes_txt = notes_txt
 
+    def build_filter_display(self):
+        """Creates Filter UI"""
         filter_txt = QLineEdit(self)
         filter_txt.setReadOnly(False)
         filter_txt.setText('date:today')
@@ -97,14 +114,11 @@ class App(QMainWindow):
         """)
         filter_txt.setCompleter(completer)
 
+    def build_count_display(self):
+        """Creates Count Lable UI"""
         count_label = QLabel(self)
         count_label.setAlignment(Qt.AlignRight)
         self.count_label = count_label
-
-        self.filter_notes()
-        self.logger.debug("[Window] Drawing Window")
-        self.show()
-        self.logger.debug("[Window] Window Drawn")
 
     def filter_notes(self):
         """Displays filtered down notes"""
