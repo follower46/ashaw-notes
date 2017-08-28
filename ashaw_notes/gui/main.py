@@ -29,6 +29,11 @@ class App(QMainWindow):
         self.plugin_manager = PluginManager()
         self.logger = get_logger()
         self.timestamp = timestamp_to_datestring
+
+        self.main_program_loop()
+
+    def main_program_loop(self):
+        """Main Connection Program Loop"""
         while True:
             try:
                 self.init_interface()
@@ -101,13 +106,6 @@ class App(QMainWindow):
         self.show()
         self.logger.debug("[Window] Window Drawn")
 
-    def add_parent_modules(self, sys_args):
-        """Adds parent modules to import"""
-        script_path = os.path.abspath(os.path.dirname(sys_args))
-        parent_path = os.path.dirname(script_path)
-        parent_parent_path = os.path.dirname(parent_path)
-        sys.path.append(parent_parent_path)
-
     def filter_notes(self):
         """Displays filtered down notes"""
         self.logger.debug("[Filter] Filtering Down Notes")
@@ -169,7 +167,7 @@ class App(QMainWindow):
         )
 
 def run():
-    """Runs the Application"""
+    """Runs main application"""
     app = QApplication(sys.argv)
     ex = App()
     sys.exit(app.exec_())
