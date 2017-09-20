@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+#!/usr/bin/env python3
 """ Notes Switchboard
     All actions are executed from this base file
 """

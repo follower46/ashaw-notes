@@ -28,7 +28,7 @@ Make sure you have Python 3 installed on your system, if you don't download the 
 ## Install the requirements
 
 ```
-$ pip3 install -r requirements.txt
+$ pip3 install .
 ```
 
 #### Note to Windows users: quicknote.py uses readline to allow for entry suggestions, it is not possible to install this from the requirements file but instead must be compiled on your local machine.
@@ -39,7 +39,7 @@ Copy notes.config to ```notes-local.config``` and begin editing, decide if you w
 There are benefits to both.
 
 Redis offers:
-* global data storage and retrieval 
+* global data storage and retrieval
 * an ability to share notes on any network
 * future options to create and retrieve notes on mobile devices
 * redundancy (when configured with Redis Sentinel)
@@ -52,11 +52,11 @@ Local files offers:
 * offline note taking
 * automatic backups on destructive updates
 
-For running ashaw-notes on Redis, you can either run your own Redis container/service or use [a free Redislabs account](https://redislabs.com/) as notes are very small in size. Notes taken from 4 years of use requires about 12MB of memory. The system attempts to use a little memory as possible, resulting in many sets being ziplists. 
+For running ashaw-notes on Redis, you can either run your own Redis container/service or use [a free Redislabs account](https://redislabs.com/) as notes are very small in size. Notes taken from 4 years of use requires about 12MB of memory. The system attempts to use a little memory as possible, resulting in many sets being ziplists.
 
 ## Running ashaw-notes
 
-After configuring the application execute ```python3 ./main.py quicknote```.
+After configuring the application execute ```ashaw-notes quicknote```.
 You will be presented with an input box to add in your first note.
 After pressing "Enter" your note will be saved and the command will terminate.
 
@@ -65,23 +65,23 @@ After pressing "Enter" your note will be saved and the command will terminate.
 ## Migrating Notes
 
 If you're wanting to sample multiple backends (or if you have a local notes file you'd like to import into Redis) you can use ```python3 ./main.py migrate```.
-Simply execute the script with the modules you want to use as parameters. For example, 
+Simply execute the script with the modules you want to use as parameters. For example,
 ```
-$ python3 ./main.py migrate local_notes redis_notes
-``` 
-will migrate the notes in your local system file to redis while 
+$ ashaw-notes migrate local_notes redis_notes
 ```
-$ python3 ./main.py migrate redis_notes local_notes
-``` 
+will migrate the notes in your local system file to redis while
+```
+$ ashaw-notes migrate redis_notes local_notes
+```
 will migrate all the notes stored on an external redis server to your local machine.
 
 ## Running the notes GUI client
 
-ashaw notes is a two-staged application. ```python3 ./main.py quicknote``` allows for data entry and the QT GUI lets the user view and filter notes stored.
+ashaw notes is a two-staged application. ```ashaw-notes quicknote``` allows for data entry and the QT GUI lets the user view and filter notes stored.
 
-To run the GUI client, you must first have QT installed on your local system. Once the prerequisites are met you can run the GUI by executing 
+To run the GUI client, you must first have QT installed on your local system. Once the prerequisites are met you can run the GUI by executing
 ```
-python3 ./main.py gui
+ashaw-notes gui
 ```
 
 A UI will popup with a basic notes interface and a filter box at the bottom of the window. Typing in this filter box will allow you to quickly search your notes.
