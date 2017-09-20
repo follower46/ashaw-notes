@@ -85,3 +85,10 @@ ashaw-notes gui
 ```
 
 A UI will popup with a basic notes interface and a filter box at the bottom of the window. Typing in this filter box will allow you to quickly search your notes.
+
+## Development
+
+For development, you can run `pip install` in so-called editable mode using the `-e` flag (https://pip.pypa.io/en/stable/reference/pip_install/#editable-installs):
+```
+pip install -e .
+```
