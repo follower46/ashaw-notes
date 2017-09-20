@@ -64,7 +64,7 @@ After pressing "Enter" your note will be saved and the command will terminate.
 
 ## Migrating Notes
 
-If you're wanting to sample multiple backends (or if you have a local notes file you'd like to import into Redis) you can use ```python3 ./main.py migrate```.
+If you're wanting to sample multiple backends (or if you have a local notes file you'd like to import into Redis) you can use ```ashaw-notes migrate```.
 Simply execute the script with the modules you want to use as parameters. For example,
 ```
 $ ashaw-notes migrate local_notes redis_notes
