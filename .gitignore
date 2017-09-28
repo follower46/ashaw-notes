@@ -1,9 +1,14 @@
 notes.config
+notes-*.config
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
 *$py.class
+
+# Editors / OSes
+.idea/
+.*DS_Store
 
 # C extensions
 *.so
