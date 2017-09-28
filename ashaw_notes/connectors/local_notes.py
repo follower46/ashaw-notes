@@ -13,7 +13,7 @@ from ashaw_notes.utils.search import datestring_to_timestamp
 class LocalNotes:
 
     config_section = 'local_notes'
-    __line_regex__ = re.compile(r'\[([^\]]+)\] (.*)')
+    line_regex = re.compile(r'\[([^\]]+)\] (.*)')
 
     def is_enabled(self):
         """Checks if connector is enabled"""
@@ -161,7 +161,7 @@ class LocalNotes:
 
     def parse_note_line(self, notes_line):
         """Rips apart note line into its timestamp and note"""
-        line = self.__line_regex__.findall(notes_line)
+        line = self.line_regex.findall(notes_line)
         if line:
             return line[0][0], line[0][1]
         return None, None
