@@ -7,7 +7,7 @@ import redis
 import fakeredis
 from mock import MagicMock, patch, call
 from ddt import ddt, data, unpack
-from ashaw_notes.connectors.redis_notes import RedisNotes
+from ashaw_notes.connectors import redis_notes
 from ashaw_notes.utils.search import get_search_request
 
 
@@ -38,49 +38,42 @@ class LocalNotesTests(unittest.TestCase):
         mock_config.get.return_value = string
         load_config.return_value = mock_config
 
-        redis_notes = RedisNotes()
-
         self.assertEqual(expectation, redis_notes.is_enabled())
 
-    @patch('ashaw_notes.connectors.redis_notes.RedisNotes.add_redis_note')
+    @patch('ashaw_notes.connectors.redis_notes.add_redis_note')
     def test_save_note(self, add_redis_note):
         """Verifies save_note is properly functioning"""
-        redis_notes = RedisNotes()
         redis_notes.save_note(12345, "test note")
         add_redis_note.assert_called_once_with(12345, "test note")
 
-    @patch('ashaw_notes.connectors.redis_notes.RedisNotes.delete_redis_note')
+    @patch('ashaw_notes.connectors.redis_notes.delete_redis_note')
     def test_delete_note(self, delete_redis_note):
         """Verifies delete_note is properly functioning"""
-        redis_notes = RedisNotes()
         redis_notes.delete_note(12345)
         delete_redis_note.assert_called_once_with(12345)
 
-    @patch('ashaw_notes.connectors.redis_notes.RedisNotes.save_note')
-    @patch('ashaw_notes.connectors.redis_notes.RedisNotes.delete_redis_note')
+    @patch('ashaw_notes.connectors.redis_notes.save_note')
+    @patch('ashaw_notes.connectors.redis_notes.delete_redis_note')
     def test_update_note(self, delete_redis_note, save_note):
         """Verifies update_note is properly functioning"""
-        redis_notes = RedisNotes()
         redis_notes.update_note(12345, 23456, "test note")
         delete_redis_note.assert_called_once_with(12345)
         save_note.assert_called_once_with(23456, "test note")
 
     @patch('ashaw_notes.utils.search.get_search_request')
-    @patch('ashaw_notes.connectors.redis_notes.RedisNotes.find_redis_notes')
+    @patch('ashaw_notes.connectors.redis_notes.find_redis_notes')
     def test_find_notes(self, find_redis_notes, get_search_request):
         """Verifies find_note is properly functioning"""
-        redis_notes = RedisNotes()
         redis_notes.find_notes(["test note"])
         get_search_request.assert_called_once_with(["test note"])
         find_redis_notes.assert_called_once()
 
-    @patch('ashaw_notes.connectors.redis_notes.RedisNotes.get_note_source_key')
-    @patch('ashaw_notes.connectors.redis_notes.RedisNotes.get_redis_connection')
+    @patch('ashaw_notes.connectors.redis_notes.get_note_source_key')
+    @patch('ashaw_notes.connectors.redis_notes.get_redis_connection')
     def test_add_redis_note(self, get_redis_connection, get_note_source_key):
         """Verifies add_redis_note is properly functioning"""
         get_redis_connection.return_value = self.redis
         get_note_source_key.return_value = 'source_unittests'
-        redis_notes = RedisNotes()
         redis_notes.add_redis_note(
             1373500800, "today: this is a simple test #yolo")
 
@@ -110,13 +103,12 @@ class LocalNotesTests(unittest.TestCase):
             self.redis.get('note_1373500800')
         )
 
-    @patch('ashaw_notes.connectors.redis_notes.RedisNotes.get_note_source_key')
-    @patch('ashaw_notes.connectors.redis_notes.RedisNotes.get_redis_connection')
+    @patch('ashaw_notes.connectors.redis_notes.get_note_source_key')
+    @patch('ashaw_notes.connectors.redis_notes.get_redis_connection')
     def test_add_redis_note_duplicate(self, get_redis_connection, get_note_source_key):
         """Verifies add_redis_note doesn't allow duplicates"""
         get_redis_connection.return_value = self.redis
         get_note_source_key.return_value = 'source_unittests'
-        redis_notes = RedisNotes()
         redis_notes.add_redis_note(
             1373500800, "today: this is a simple test #yolo")
         redis_notes.add_redis_note(
@@ -159,11 +151,10 @@ class LocalNotesTests(unittest.TestCase):
             self.redis.get('note_1373500801')
         )
 
-    @patch('ashaw_notes.connectors.redis_notes.RedisNotes.start_watch')
-    @patch('ashaw_notes.connectors.redis_notes.RedisNotes.get_redis_connection')
+    @patch('ashaw_notes.connectors.redis_notes.start_watch')
+    @patch('ashaw_notes.connectors.redis_notes.get_redis_connection')
     def test_add_redis_note_failure(self, get_redis_connection, start_watch):
         """Verifies that notes attempt re-add on failure"""
-        redis_notes = RedisNotes()
         get_redis_connection.return_value = self.redis
         start_watch.side_effect = [
             redis.WatchError(),
@@ -179,10 +170,9 @@ class LocalNotesTests(unittest.TestCase):
             self.redis.get('note_1373500800')
         )
 
-    @patch('ashaw_notes.connectors.redis_notes.RedisNotes.get_redis_connection')
+    @patch('ashaw_notes.connectors.redis_notes.get_redis_connection')
     def test_delete_redis_note_miss(self, get_redis_connection):
         """Verifies delete_redis_note handles bad timestamp properly"""
-        redis_notes = RedisNotes()
         get_redis_connection.return_value = self.redis
         redis_notes.add_redis_note(1373500800, "today: this is note 1")
         redis_notes.add_redis_note(1450794188, "today: this is note 2")
@@ -194,10 +184,9 @@ class LocalNotesTests(unittest.TestCase):
             b"today: this is note 2",
             self.redis.get('note_1450794188'))
 
-    @patch('ashaw_notes.connectors.redis_notes.RedisNotes.get_redis_connection')
+    @patch('ashaw_notes.connectors.redis_notes.get_redis_connection')
     def test_delete_redis_note_watched(self, get_redis_connection):
         """Verifies delete_redis_note doesn't delete on a watched timestamp"""
-        redis_notes = RedisNotes()
         get_redis_connection.return_value = self.redis
         redis_notes.add_redis_note(1373500800, "today: this is note 1")
         self.redis.set(redis_notes.get_watch_key(1373500800), 1234)
@@ -207,11 +196,10 @@ class LocalNotesTests(unittest.TestCase):
             b"today: this is note 1",
             self.redis.get('note_1373500800'))
 
-    @patch('ashaw_notes.connectors.redis_notes.RedisNotes.get_note_source_key')
-    @patch('ashaw_notes.connectors.redis_notes.RedisNotes.get_redis_connection')
+    @patch('ashaw_notes.connectors.redis_notes.get_note_source_key')
+    @patch('ashaw_notes.connectors.redis_notes.get_redis_connection')
     def test_delete_redis_note_hit(self, get_redis_connection, get_note_source_key):
         """Verifies delete_redis_note is properly functioning"""
-        redis_notes = RedisNotes()
         get_redis_connection.return_value = self.redis
         get_note_source_key.return_value = 'source_unittests'
         redis_notes.add_redis_note(
@@ -285,7 +273,6 @@ class LocalNotesTests(unittest.TestCase):
     )
     def test_get_note_key(self, timestamp, expectation):
         """Verifies get_note_key is properly functioning"""
-        redis_notes = RedisNotes()
         key = redis_notes.get_note_key(timestamp)
         self.assertEqual(expectation, key)
 
@@ -298,7 +285,6 @@ class LocalNotesTests(unittest.TestCase):
     )
     def test_get_word_key(self, word, expectation):
         """Verifies get_word_key is properly functioning"""
-        redis_notes = RedisNotes()
         key = redis_notes.get_word_key(word)
         self.assertEqual(expectation, key)
 
@@ -349,14 +335,12 @@ class LocalNotesTests(unittest.TestCase):
     )
     def test_get_note_tokens(self, timestamp, note, expectation):
         """Verifies get_note_tokens is properly functioning"""
-        redis_notes = RedisNotes()
         tokens = redis_notes.get_note_tokens(timestamp, note)
         self.assertListEqual(expectation, tokens)
 
-    @patch('ashaw_notes.connectors.redis_notes.RedisNotes.get_redis_connection')
+    @patch('ashaw_notes.connectors.redis_notes.get_redis_connection')
     def test_get_common_words(self, get_redis_connection):
         """Verifies get_common_words is properly functioning"""
-        redis_notes = RedisNotes()
         get_redis_connection.return_value = self.redis
         redis_notes.add_redis_note(
             1373500800, "today: this is a simple test #yolo")
@@ -369,11 +353,10 @@ class LocalNotesTests(unittest.TestCase):
             words
         )
 
-    @patch('ashaw_notes.connectors.redis_notes.RedisNotes.get_note_source_key')
-    @patch('ashaw_notes.connectors.redis_notes.RedisNotes.get_redis_connection')
+    @patch('ashaw_notes.connectors.redis_notes.get_note_source_key')
+    @patch('ashaw_notes.connectors.redis_notes.get_redis_connection')
     def test_find_redis_notes(self, get_redis_connection, get_note_source_key):
         """Verifies find_redis_notes is properly functioning"""
-        redis_notes = RedisNotes()
         get_redis_connection.return_value = self.redis
         get_note_source_key.return_value = 'source_unittests'
         redis_notes.add_redis_note(
@@ -418,7 +401,6 @@ class LocalNotesTests(unittest.TestCase):
     @patch('ashaw_notes.utils.configuration.load_config')
     def test_get_redis_connection(self, load_config):
         """Verifies that Redis is loaded correctly"""
-        redis_notes = RedisNotes()
         config = MagicMock()
         config.get.side_effect = [
             'myredis.server',
