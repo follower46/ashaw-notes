@@ -90,7 +90,7 @@ def find_local_notes(search_request):
         matching_line = True
 
         for term in search_request.inclusion_terms:
-            if not re.search(r'\b(%s)\b' % term, line):
+            if not re.search(r'(%s)\b' % term, line):
                 matching_line = False
                 break
 
@@ -98,7 +98,7 @@ def find_local_notes(search_request):
             continue
 
         for term in search_request.exclusion_terms:
-            if re.search(r'\b(%s)\b' % term, line):
+            if re.search(r'%s' % term, line):
                 matching_line = False
                 break
 
