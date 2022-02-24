@@ -106,6 +106,9 @@ def find_local_notes(search_request):
             continue
 
         timestamp, note = parse_note_line(line)
+        
+        if not timestamp:
+            continue
 
         if search_request.date:
             pattern = re.compile(
