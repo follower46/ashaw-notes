@@ -32,7 +32,7 @@ def datestring_to_timestamp(string):
 
 def timestamp_to_datestring(timestamp, with_time=True):
     """Converts timestamp to date string"""
-    time_struct = time.gmtime(timestamp)
+    time_struct = time.localtime(timestamp)
     if with_time:
         return time.asctime(time_struct)
     return time.strftime('%Y-%m-%d', time_struct)
